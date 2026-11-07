@@ -9,21 +9,23 @@ import Process from "@/components/home/Process";
 import Services from "@/components/home/Services";
 import Testimonials from "@/components/home/Testimonials";
 import { getSite } from "@/lib/getSite";
+import { isShown } from "@/lib/shown";
 
 export default async function HomePage() {
   const site = await getSite();
+  const show = (id) => isShown(site.hidden, id);
   return (
     <main>
-      <Hero />
-      <Intro />
-      <Services />
-      <FeaturedProjects projects={site.projects} title={site.copy.projectsTitle} labels={site.copy} />
-      <Process process={site.process} />
-      <Pricing />
-      <Testimonials />
-      <Faq />
-      <Certificates />
-      <ContactBand />
+      {show("home-hero") ? <Hero /> : null}
+      {show("home-intro") ? <Intro /> : null}
+      {show("home-services") ? <Services /> : null}
+      {show("home-projects") ? <FeaturedProjects projects={site.projects} title={site.copy.projectsTitle} labels={site.copy} /> : null}
+      {show("home-process") ? <Process process={site.process} /> : null}
+      {show("home-pricing") ? <Pricing /> : null}
+      {show("home-notes") ? <Testimonials /> : null}
+      {show("home-faq") ? <Faq /> : null}
+      {show("home-certificates") ? <Certificates /> : null}
+      {show("home-contact") ? <ContactBand /> : null}
     </main>
   );
 }

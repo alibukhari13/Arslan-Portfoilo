@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { isShown } from "@/lib/shown";
 import Footer from "./Footer";
 import Navbar from "./Navbar";
 import SmoothScroll from "../ui/SmoothScroll";
@@ -17,9 +18,9 @@ export default function SiteChrome({ site, children }) {
       <a href="#content" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:bg-lime focus:px-3 focus:py-2 focus:text-ink">
         {site.copy.skipToContent}
       </a>
-      <Navbar nav={site.nav} cta={site.copy.navCta} name={site.profile.name} />
+      {isShown(site.hidden, "chrome-nav") ? <Navbar nav={site.nav} cta={site.copy.navCta} name={site.profile.name} /> : null}
       <div id="content">{children}</div>
-      <Footer profile={site.profile} footerNav={site.footerNav} resourceNav={site.resourceNav} copy={site.copy} />
+      {isShown(site.hidden, "chrome-footer") ? <Footer profile={site.profile} footerNav={site.footerNav} resourceNav={site.resourceNav} copy={site.copy} /> : null}
     </>
   );
 }

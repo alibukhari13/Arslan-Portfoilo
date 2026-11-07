@@ -1,4 +1,5 @@
 import { getSite } from "@/lib/getSite";
+import { isShown } from "@/lib/shown";
 import ContactBand from "../home/ContactBand";
 import Marquee from "../ui/Marquee";
 import PricingCards from "../ui/PricingCards";
@@ -12,30 +13,39 @@ function splitTitle(title) {
 }
 
 export default async function PricingView() {
-  const { extraServices, tools, plans, copy } = await getSite();
+  const { extraServices, tools, plans, copy, hidden } = await getSite();
   const title = splitTitle(copy.pricingTitle);
+  const show = (id) => isShown(hidden, id);
   return (
     <main className="pt-28">
-      <section className="mx-auto max-w-[1320px] px-5 md:px-10">
-        <Reveal>
-          <ScrollWords
-            as="h1"
-            text={title.lead}
-            muted={title.rest}
-            breakBeforeMuted
-            className="mx-auto max-w-[742px] text-center text-[clamp(2.75rem,6vw,5rem)] uppercase leading-[0.8]"
-            style={{ letterSpacing: "-0.04em" }}
-          />
-        </Reveal>
-        <Reveal delay={100}>
-          <p className="mx-auto mt-6 max-w-xl text-center text-mist">{copy.pricingIntro}</p>
-        </Reveal>
-        <div className="py-12">
-          <PricingCards plans={plans} note={copy.pricingNote} copy={copy} />
-        </div>
-      </section>
+      {show("pricing-heading") || show("pricing-plans") ? (
+        <section className="mx-auto max-w-[1320px] px-5 md:px-10">
+          {show("pricing-heading") ? (
+            <>
+              <Reveal>
+                <ScrollWords
+                  as="h1"
+                  text={title.lead}
+                  muted={title.rest}
+                  breakBeforeMuted
+                  className="mx-auto max-w-[742px] text-center text-[clamp(2.75rem,6vw,5rem)] uppercase leading-[0.8]"
+                  style={{ letterSpacing: "-0.04em" }}
+                />
+              </Reveal>
+              <Reveal delay={100}>
+                <p className="mx-auto mt-6 max-w-xl text-center text-mist">{copy.pricingIntro}</p>
+              </Reveal>
+            </>
+          ) : null}
+          {show("pricing-plans") ? (
+            <div className="py-12">
+              <PricingCards plans={plans} note={copy.pricingNote} copy={copy} />
+            </div>
+          ) : null}
+        </section>
+      ) : null}
 
-      <div className="mx-auto max-w-[1100px] px-5 md:px-8">
+      {show("pricing-tools") ? <div className="mx-auto max-w-[1100px] px-5 md:px-8">
         <Marquee
           slow
           items={tools}
@@ -45,9 +55,9 @@ export default async function PricingView() {
             </span>
           )}
         />
-      </div>
+      </div> : null}
 
-      <section className="mx-auto max-w-[1100px] px-5 py-16 md:px-8">
+      {show("pricing-extra") ? <section className="mx-auto max-w-[1100px] px-5 py-16 md:px-8">
         <Reveal>
           <ScrollWords
             as="h2"
@@ -64,8 +74,8 @@ export default async function PricingView() {
             </Reveal>
           ))}
         </ul>
-      </section>
-      <ContactBand source="Pricing" />
+      </section> : null}
+      {show("pricing-contact") ? <ContactBand source="Pricing" /> : null}
     </main>
   );
 }

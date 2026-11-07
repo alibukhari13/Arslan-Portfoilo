@@ -1,4 +1,5 @@
 import { getSite } from "@/lib/getSite";
+import { isShown } from "@/lib/shown";
 import ValueStory from "../about/ValueStory";
 import ContactBand from "../home/ContactBand";
 import ArrowButton from "../ui/ArrowButton";
@@ -8,10 +9,11 @@ import Reveal from "../ui/Reveal";
 import ScrollWords from "../ui/ScrollWords";
 
 export default async function AboutView() {
-  const { credentials, experience, highlights, profile, stats, tools, values, copy } = await getSite();
+  const { credentials, experience, highlights, profile, stats, tools, values, copy, hidden } = await getSite();
+  const show = (id) => isShown(hidden, id);
   return (
     <main className="pt-28">
-      <section className="mx-auto grid max-w-[1240px] items-end gap-10 px-5 md:px-8 lg:grid-cols-2">
+      {show("about-opening") ? <section className="mx-auto grid max-w-[1240px] items-end gap-10 px-5 md:px-8 lg:grid-cols-2">
         <Reveal>
           <ScrollWords
             as="h1"
@@ -29,9 +31,9 @@ export default async function AboutView() {
             <div aria-hidden className="wipe-in absolute inset-0 bg-ink" />
           </div>
         </Reveal>
-      </section>
+      </section> : null}
 
-      <div className="mx-auto mt-10 max-w-[1240px] px-5 md:px-8">
+      {show("about-tools") ? <div className="mx-auto mt-10 max-w-[1240px] px-5 md:px-8">
         <Marquee
           slow
           items={tools}
@@ -41,9 +43,9 @@ export default async function AboutView() {
             </span>
           )}
         />
-      </div>
+      </div> : null}
 
-      <section className="mx-auto grid max-w-[1240px] gap-4 px-5 py-20 md:grid-cols-4 md:px-8">
+      {show("about-stats") ? <section className="mx-auto grid max-w-[1240px] gap-4 px-5 py-20 md:grid-cols-4 md:px-8">
         {stats.map((stat, index) => (
           <Reveal key={stat.label} delay={index * 80}>
             <article className="bg-panel p-6">
@@ -52,11 +54,11 @@ export default async function AboutView() {
             </article>
           </Reveal>
         ))}
-      </section>
+      </section> : null}
 
-      <ValueStory items={values} lead={copy.valuesLead} rest={copy.valuesRest} />
+      {show("about-values") ? <ValueStory items={values} lead={copy.valuesLead} rest={copy.valuesRest} /> : null}
 
-      <section className="mx-auto grid max-w-[1240px] items-center gap-10 px-5 py-24 md:px-8 lg:grid-cols-[.85fr_1.15fr]">
+      {show("about-story") ? <section className="mx-auto grid max-w-[1240px] items-center gap-10 px-5 py-24 md:px-8 lg:grid-cols-[.85fr_1.15fr]">
         <Reveal>
           <div className="relative aspect-[4/5] overflow-hidden bg-panel">
             <Photo src={profile.portrait} alt={profile.name} fill className="object-cover object-top" sizes="480px" />
@@ -94,9 +96,9 @@ export default async function AboutView() {
             ))}
           </ul>
         </div>
-      </section>
+      </section> : null}
 
-      <section className="mx-auto max-w-[1240px] px-5 pb-8 md:px-8">
+      {show("about-experience") ? <section className="mx-auto max-w-[1240px] px-5 pb-8 md:px-8">
         <Reveal>
           <ScrollWords
             as="h2"
@@ -118,9 +120,9 @@ export default async function AboutView() {
             </Reveal>
           ))}
         </div>
-      </section>
+      </section> : null}
 
-      <section className="mx-auto max-w-[1240px] px-5 py-16 md:px-8">
+      {show("about-study") ? <section className="mx-auto max-w-[1240px] px-5 py-16 md:px-8">
         <Reveal>
           <ScrollWords
             as="h2"
@@ -155,9 +157,9 @@ export default async function AboutView() {
         <div className="mt-8">
           <ArrowButton href="/projects">{copy.projectsViewAll}</ArrowButton>
         </div>
-      </section>
+      </section> : null}
 
-      <ContactBand source="About" />
+      {show("about-contact") ? <ContactBand source="About" /> : null}
     </main>
   );
 }

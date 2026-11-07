@@ -20,7 +20,7 @@ export async function generateMetadata({ params }) {
 
 export default async function ProjectPage({ params }) {
   const { slug } = await params;
-  const { projects, copy } = await getSite();
+  const { projects, copy, hidden } = await getSite();
   const index = projects.findIndex((item) => item.slug === slug);
   if (index < 0) notFound();
 
@@ -29,5 +29,5 @@ export default async function ProjectPage({ params }) {
     .map((step) => projects[(index + step) % projects.length])
     .filter((item) => item && item.slug !== current.slug);
 
-  return <ProjectDetail project={current} more={more} copy={copy} />;
+  return <ProjectDetail project={current} more={more} copy={copy} hidden={hidden} />;
 }

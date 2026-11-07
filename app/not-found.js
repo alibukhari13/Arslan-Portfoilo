@@ -1,9 +1,11 @@
 import ArrowButton from "@/components/ui/ArrowButton";
 import ScrollWords from "@/components/ui/ScrollWords";
 import { getSite } from "@/lib/getSite";
+import { isShown } from "@/lib/shown";
 
 export default async function NotFound() {
-  const { copy } = await getSite();
+  const { copy, hidden } = await getSite();
+  if (!isShown(hidden, "missing-page")) return <main className="min-h-svh" />;
   return (
     <main className="grid min-h-svh place-items-center px-6 pt-24 text-center">
       <div>

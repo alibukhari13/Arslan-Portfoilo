@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { adminPages } from "@/components/admin/pages";
 import { connection } from "next/server";
 import { isAdmin } from "@/lib/auth";
 import { lists, singles, tables } from "@/lib/collections";
@@ -113,10 +114,34 @@ export async function saveProfile(record) {
 export async function saveCopy(data) {
   const access = await gate();
   if (!access.client) return access.ok ? denied() : access;
-  const { error } = await access.client.from("site_copy").upsert({ id: 1, data: data || {} });
+  const existing = await access.client.from("site_copy").select("data").eq("id", 1).maybeSingle();
+  if (existing.error) return { ok: false, error: existing.error.message };
+  const next = { ...(data || {}) };
+  const previousHidden = existing.data?.data?.hiddenSections;
+  if (next.hiddenSections == null && previousHidden) next.hiddenSections = previousHidden;
+  const { error } = await access.client.from("site_copy").upsert({ id: 1, data: next });
   if (error) return { ok: false, error: error.message };
   revalidatePath("/", "layout");
   return { ok: true };
+}
+
+export async function setSectionHidden(sectionId, hidden) {
+  const access = await gate();
+  if (!access.client) return access.ok ? denied() : access;
+  const id = String(sectionId || "");
+  const known = adminPages.some((page) => page.sections.some((section) => section.id === id && !section.inbox));
+  if (!known) return { ok: false, error: "Unknown section." };
+  const current = await access.client.from("site_copy").select("data").eq("id", 1).single();
+  if (current.error) return { ok: false, error: current.error.message };
+  const data = { ...(current.data?.data || {}) };
+  const hiddenSections = { ...(data.hiddenSections && typeof data.hiddenSections === "object" ? data.hiddenSections : {}) };
+  if (hidden) hiddenSections[id] = true;
+  else delete hiddenSections[id];
+  data.hiddenSections = hiddenSections;
+  const { error } = await access.client.from("site_copy").upsert({ id: 1, data });
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/", "layout");
+  return { ok: true, hiddenSections };
 }
 
 export async function setMessageRead(id, read = true) {

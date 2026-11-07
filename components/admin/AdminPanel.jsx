@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { copy as copyDefaults } from "@/data/site";
 import { lists, singles } from "@/lib/collections";
-import { deleteMessage, loadAdmin, removeRecord, reorderRecords, saveCopy, saveProfile, saveRecord, setMessageRead } from "@/app/admin/actions";
+import { deleteMessage, loadAdmin, removeRecord, reorderRecords, saveCopy, saveProfile, saveRecord, setMessageRead, setSectionHidden } from "@/app/admin/actions";
 import { Mark } from "@/components/ui/Icons";
 import { adminPages } from "@/components/admin/pages";
 
@@ -466,6 +466,7 @@ export default function AdminPanel({ initialAuthed }) {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [hiding, setHiding] = useState(false);
   const [queries, setQueries] = useState({});
   const [adding, setAdding] = useState("");
 
@@ -566,6 +567,23 @@ export default function AdminPanel({ initialAuthed }) {
 
   function deleteRow(table, id, title) {
     if (window.confirm(`Delete “${title}”?`)) run(() => removeRecord(table, id), "Deleted.");
+  }
+
+  function sectionHidden(id) {
+    return Boolean(copy?.hiddenSections?.[id]);
+  }
+
+  async function toggleHidden(id, hidden) {
+    setHiding(true);
+    setError("");
+    const result = await setSectionHidden(id, hidden);
+    setHiding(false);
+    if (!result.ok) {
+      setError(result.error || "Could not update this section.");
+      return;
+    }
+    setCopy((currentCopy) => ({ ...currentCopy, hiddenSections: result.hiddenSections }));
+    note(hidden ? "Hidden on the website." : "Visible on the website.");
   }
 
   const sections = useMemo(
@@ -681,6 +699,7 @@ export default function AdminPanel({ initialAuthed }) {
                     {page.sections.map((section, index) => {
                       const active = tab === section.id;
                       const itemCount = sectionCount(section);
+                      const off = sectionHidden(section.id);
                       return (
                         <button
                           key={section.id}
@@ -690,6 +709,7 @@ export default function AdminPanel({ initialAuthed }) {
                         >
                           <span className="w-5 shrink-0 text-[11px] text-white/35">{String(index + 1).padStart(2, "0")}</span>
                           <span className="min-w-0 flex-1 truncate">{section.label}</span>
+                          {off ? <span className="text-[10px] uppercase tracking-[0.12em] text-white/40">Hidden</span> : null}
                           {itemCount != null ? <span className="text-[11px] text-white/35">{itemCount}</span> : null}
                         </button>
                       );
@@ -736,7 +756,7 @@ export default function AdminPanel({ initialAuthed }) {
               <span className={labelClass}>Section</span>
               <select id="admin-section" className={inputClass} value={tab} onChange={(event) => setTab(event.target.value)}>
                 {current.page.sections.map((section, index) => (
-                  <option key={section.id} value={section.id}>{String(index + 1).padStart(2, "0")} {section.label}</option>
+                  <option key={section.id} value={section.id}>{String(index + 1).padStart(2, "0")} {section.label}{sectionHidden(section.id) ? " · Hidden" : ""}</option>
                 ))}
               </select>
             </label>
@@ -754,6 +774,28 @@ export default function AdminPanel({ initialAuthed }) {
               <Link href={current.page.href} className={`${quietBtn} h-10 px-4`}>{current.page.id === "chrome" ? "View site" : `View ${current.page.title}`}</Link>
             </span>
           </div>
+
+          {data && !current.inbox ? (
+            <div className="mt-6 flex items-center justify-between gap-4 border border-white/10 bg-panel px-5 py-4">
+              <div>
+                <p className="text-sm font-medium">{sectionHidden(current.id) ? "Hidden on the website" : "Visible on the website"}</p>
+                <p className="mt-1 max-w-xl text-xs leading-5 text-white/45">
+                  This switch only hides {current.label} on {current.page.title}. The words and lists stay here, so you can show the section again.
+                </p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={!sectionHidden(current.id)}
+                aria-label={sectionHidden(current.id) ? `Show ${current.label}` : `Hide ${current.label}`}
+                disabled={busy || hiding}
+                onClick={() => toggleHidden(current.id, !sectionHidden(current.id))}
+                className={`relative h-7 w-12 shrink-0 ${sectionHidden(current.id) ? "bg-white/15" : "bg-lime"}`}
+              >
+                <span className={`absolute top-1 h-5 w-5 bg-ink ${sectionHidden(current.id) ? "left-1" : "left-6"}`} />
+              </button>
+            </div>
+          ) : null}
 
           {message ? <p className="mt-5 border border-lime/30 bg-lime/10 px-3 py-2 text-sm text-lime">{message}</p> : null}
           {error ? <p className="mt-5 border border-red-400/30 bg-red-400/10 px-3 py-2 text-sm text-red-200">{error}</p> : null}

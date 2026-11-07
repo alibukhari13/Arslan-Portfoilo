@@ -1,4 +1,5 @@
 import { getSite } from "@/lib/getSite";
+import { isShown } from "@/lib/shown";
 import ArrowButton from "../ui/ArrowButton";
 import ContactForm from "../ui/ContactForm";
 import Photo from "../ui/Photo";
@@ -14,7 +15,7 @@ function splitTitle(title, marker) {
 }
 
 export default async function ContactView() {
-  const { profile, copy } = await getSite();
+  const { profile, copy, hidden } = await getSite();
   const hero = splitTitle(copy.contactPageTitle || "", " your ");
   const form = splitTitle(copy.contactTitle || "", "bring ");
   const hours = Array.isArray(profile.hours)
@@ -32,7 +33,7 @@ export default async function ContactView() {
 
   return (
     <main>
-      <section className="mx-auto grid w-full max-w-[1320px] items-stretch gap-10 px-5 pt-28 lg:grid-cols-[649px_608px] lg:justify-between lg:gap-16 lg:px-0 lg:pt-[207px]">
+      {isShown(hidden, "contact-page") ? <section className="mx-auto grid w-full max-w-[1320px] items-stretch gap-10 px-5 pt-28 lg:grid-cols-[649px_608px] lg:justify-between lg:gap-16 lg:px-0 lg:pt-[207px]">
         <div className="relative h-[460px] overflow-hidden bg-panel sm:h-[560px] lg:h-[701px]">
           <Photo src={profile.portrait} alt={profile.name} fill priority className="object-cover object-[center_18%]" sizes="649px" />
         </div>
@@ -75,9 +76,9 @@ export default async function ContactView() {
             </ArrowButton>
           </div>
         </div>
-      </section>
+      </section> : null}
 
-      <section id="contact" className="mx-auto w-full max-w-[872px] scroll-mt-28 px-5 pb-28 pt-24 lg:px-0 lg:pt-[200px]">
+      {isShown(hidden, "contact-form") ? <section id="contact" className="mx-auto w-full max-w-[872px] scroll-mt-28 px-5 pb-28 pt-24 lg:px-0 lg:pt-[200px]">
         <Reveal>
           <ScrollWords
             as="h2"
@@ -90,7 +91,7 @@ export default async function ContactView() {
         <div className="mt-[72px]">
           <ContactForm page source="Contact page" email={profile.email} text={copy} />
         </div>
-      </section>
+      </section> : null}
     </main>
   );
 }

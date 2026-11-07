@@ -7,6 +7,7 @@ import ArrowButton from "../ui/ArrowButton";
 import Photo from "../ui/Photo";
 import Reveal from "../ui/Reveal";
 import ScrollWords from "../ui/ScrollWords";
+import { isShown } from "@/lib/shown";
 
 function storyOf(project) {
   const shot = (index) => project.gallery?.[index] || project.image;
@@ -23,7 +24,7 @@ function storyOf(project) {
   };
 }
 
-export default function ProjectDetail({ project, more, copy = {} }) {
+export default function ProjectDetail({ project, more, copy = {}, hidden = {} }) {
   const story = storyOf(project);
 
   return (
@@ -41,7 +42,7 @@ export default function ProjectDetail({ project, more, copy = {} }) {
         ) : null}
       </header>
 
-      <dl className="mx-auto mt-14 grid max-w-[1320px] grid-cols-2 gap-x-6 gap-y-8 px-5 md:grid-cols-4 md:px-10">
+      {isShown(hidden, "projects-case") ? <dl className="mx-auto mt-14 grid max-w-[1320px] grid-cols-2 gap-x-6 gap-y-8 px-5 md:grid-cols-4 md:px-10">
         {[
           [copy.metaClient || "Client", project.client],
           [copy.metaCategory || "Category", project.category],
@@ -53,19 +54,19 @@ export default function ProjectDetail({ project, more, copy = {} }) {
             <dd className="mt-2 text-xl font-semibold">{value}</dd>
           </div>
         ))}
-      </dl>
+      </dl> : null}
 
       <div className="px-5 md:px-8">
         <HeroShot src={project.image} alt={project.title} />
       </div>
 
-      <section className="mx-auto w-full max-w-[872px] px-5 py-20 min-[920px]:px-0 md:py-24">
+      {isShown(hidden, "projects-case") ? <section className="mx-auto w-full max-w-[872px] px-5 py-20 min-[920px]:px-0 md:py-24">
         <Reveal>
           <ScrollWords as="h2" text={copy.projectOverviewTitle || "Project overview"} className="text-[40px] uppercase leading-none" style={{ letterSpacing: "-0.02em" }} />
           <p className="mt-5 text-lg leading-relaxed text-[#b9b8b8]">{story.overview}</p>
           {story.overviewNote ? <p className="mt-5 text-lg leading-relaxed text-[#b9b8b8]">{story.overviewNote}</p> : null}
         </Reveal>
-      </section>
+      </section> : null}
 
       <div className="mx-auto grid w-full max-w-[872px] gap-6 px-5 min-[920px]:px-0 sm:grid-cols-2">
         {story.pair.map((src, index) => (
@@ -75,7 +76,7 @@ export default function ProjectDetail({ project, more, copy = {} }) {
         ))}
       </div>
 
-      <section className="mx-auto w-full max-w-[872px] space-y-14 px-5 py-20 min-[920px]:px-0">
+      {isShown(hidden, "projects-case") ? <section className="mx-auto w-full max-w-[872px] space-y-14 px-5 py-20 min-[920px]:px-0">
         <Reveal>
           <ScrollWords as="h2" text={copy.projectChallengeTitle || "The challenge"} className="text-[40px] uppercase leading-none" style={{ letterSpacing: "-0.02em" }} />
           <p className="mt-5 text-lg leading-relaxed text-[#b9b8b8]">{story.challenge}</p>
@@ -84,7 +85,7 @@ export default function ProjectDetail({ project, more, copy = {} }) {
           <ScrollWords as="h2" text={copy.projectSolutionTitle || "Our solution"} className="text-[40px] uppercase leading-none" style={{ letterSpacing: "-0.02em" }} />
           <p className="mt-5 text-lg leading-relaxed text-[#b9b8b8]">{story.solution}</p>
         </Reveal>
-      </section>
+      </section> : null}
 
       <div className="mx-auto w-full max-w-[872px] px-5 min-[920px]:px-0">
         <div className="relative h-[320px] overflow-hidden sm:h-[582px]">
@@ -92,9 +93,9 @@ export default function ProjectDetail({ project, more, copy = {} }) {
         </div>
       </div>
 
-      <ImpactStats intro={story.impactIntro} impacts={story.impacts} title={copy.projectImpactTitle || "Project impact"} />
+      {isShown(hidden, "projects-case") ? <ImpactStats intro={story.impactIntro} impacts={story.impacts} title={copy.projectImpactTitle || "Project impact"} /> : null}
 
-      {more.length ? (
+      {isShown(hidden, "projects-case") && more.length ? (
         <section className="pt-8">
           <div className="mx-auto mb-10 flex max-w-[1320px] flex-col gap-6 px-5 sm:flex-row sm:items-end sm:justify-between md:px-10">
             <ScrollWords as="h2" text={copy.projectMoreTitle || "More projects"} className="text-[clamp(3rem,6vw,5rem)] uppercase leading-[0.8]" />
@@ -106,7 +107,7 @@ export default function ProjectDetail({ project, more, copy = {} }) {
         </section>
       ) : null}
 
-      <ContactBand source="Project" />
+      {isShown(hidden, "project-detail-contact") ? <ContactBand source="Project" /> : null}
     </main>
   );
 }

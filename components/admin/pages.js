@@ -208,9 +208,21 @@ export const adminPages = [
         lists: [{ id: "projects", title: "Projects" }],
       },
       {
+        id: "projects-contact",
+        label: "Contact",
+        updates: "Projects page, last section. This is the same block as Home · Contact. Hiding it only removes it from the projects list. Home, About, Services, Pricing, and project pages keep their own contact block.",
+        copyKeys: ["contactTitle", "formMessagePlaceholder", ...formKeys],
+      },
+      {
+        id: "project-detail-contact",
+        label: "Project page contact",
+        updates: "The contact block at the bottom of every project page. Hiding it only removes it there.",
+        copyKeys: ["contactTitle", "formMessagePlaceholder", ...formKeys],
+      },
+      {
         id: "projects-case",
         label: "Case study labels",
-        updates: "The labels on every project page: the live-link button, Overview, Challenge, Solution, Impact, More projects, and Client, Category, Year, Services. The words inside a project are edited in All projects.",
+        updates: "The labels on every project page: the live-link button, Overview, Challenge, Solution, Impact, More projects, and Client, Category, Year, Services. The words inside a project are edited in All projects. Hiding this section removes those labeled blocks from every project page. The title and photos stay.",
         copyKeys: caseStudyKeys,
       },
     ],
