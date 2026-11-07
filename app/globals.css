@@ -1,0 +1,174 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #0e0e0e;
+  --color-panel: #151515;
+  --color-panel-2: #1c1c1c;
+  --color-lime: #ecfdad;
+  --color-mist: #b9b8b8;
+  --color-line: rgba(255, 255, 255, 0.1);
+}
+
+html {
+  scroll-behavior: auto;
+  overflow-x: clip;
+}
+
+body {
+  background: #0e0e0e;
+  color: #fff;
+  font-family: "Switzer", var(--font-manrope), sans-serif;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: #ecfdad;
+  color: #0e0e0e;
+}
+
+:focus-visible {
+  outline: 2px solid #ecfdad;
+  outline-offset: 3px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.font-pixel {
+  font-family: var(--font-jersey), "Jersey 20", sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.03em;
+}
+
+.admin-ui h1,
+.admin-ui h2,
+.admin-ui h3 {
+  font-family: "Switzer", var(--font-manrope), sans-serif;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+@keyframes ticker {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-ticker {
+  animation: ticker 38s linear infinite;
+}
+
+.animate-ticker-slow {
+  animation: ticker 55s linear infinite;
+}
+
+.animate-ticker-reverse {
+  animation: ticker 48s linear infinite reverse;
+}
+
+.marquee:hover .animate-ticker,
+.marquee:hover .animate-ticker-slow,
+.marquee:hover .animate-ticker-reverse {
+  animation-play-state: paused;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.rise {
+  animation: rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes wipe-off {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(105%, 0, 0);
+  }
+}
+
+.wipe-in {
+  animation: wipe-off 1.15s cubic-bezier(0.77, 0, 0.18, 1) 0.12s both;
+}
+
+.reveal .wipe-in {
+  animation: none;
+  transform: translate3d(0, 0, 0);
+}
+
+.reveal.is-in .wipe-in {
+  animation: wipe-off 1.15s cubic-bezier(0.77, 0, 0.18, 1) both;
+}
+
+.marquee {
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .reveal {
+    opacity: 0;
+    transform: translateY(80px);
+    transition:
+      opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .reveal.is-in {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (scripting: none) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .animate-ticker,
+  .animate-ticker-slow,
+  .animate-ticker-reverse,
+  .rise,
+  .wipe-in {
+    animation: none !important;
+  }
+
+  .wipe-in {
+    transform: translate3d(105%, 0, 0);
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
