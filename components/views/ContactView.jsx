@@ -44,8 +44,7 @@ export default async function ContactView() {
               as="h1"
               text={hero.lead}
               muted={hero.rest}
-              className="max-w-[608px] text-[clamp(2.75rem,6vw,5rem)] uppercase leading-[0.8]"
-              style={{ letterSpacing: "-0.04em" }}
+              className="display-title max-w-[608px]"
             />
           </Reveal>
 
@@ -84,8 +83,7 @@ export default async function ContactView() {
             as="h2"
             text={form.lead}
             muted={form.rest}
-            className="mx-auto max-w-[588px] text-center text-[clamp(2.75rem,6vw,5rem)] uppercase leading-[0.8]"
-            style={{ letterSpacing: "-0.04em" }}
+            className="display-title mx-auto max-w-[588px] text-center"
           />
         </Reveal>
         <div className="mt-[72px]">

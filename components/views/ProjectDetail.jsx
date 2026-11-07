@@ -33,7 +33,7 @@ export default function ProjectDetail({ project, more, copy = {}, hidden = {} })
         <ScrollWords
           as="h1"
           text={project.title}
-          className="max-w-[12ch] text-[clamp(3.2rem,7vw,5rem)] uppercase leading-[0.8]"
+          className="display-title max-w-[12ch]"
         />
         {story.liveUrl ? (
           <ArrowButton href={story.liveUrl} variant="line" className="shrink-0">
@@ -62,7 +62,7 @@ export default function ProjectDetail({ project, more, copy = {}, hidden = {} })
 
       {isShown(hidden, "projects-case") ? <section className="mx-auto w-full max-w-[872px] px-5 py-20 min-[920px]:px-0 md:py-24">
         <Reveal>
-          <ScrollWords as="h2" text={copy.projectOverviewTitle || "Project overview"} className="text-[40px] uppercase leading-none" style={{ letterSpacing: "-0.02em" }} />
+          <ScrollWords as="h2" text={copy.projectOverviewTitle || "Project overview"} className="display-statement" />
           <p className="mt-5 text-lg leading-relaxed text-[#b9b8b8]">{story.overview}</p>
           {story.overviewNote ? <p className="mt-5 text-lg leading-relaxed text-[#b9b8b8]">{story.overviewNote}</p> : null}
         </Reveal>
@@ -78,11 +78,11 @@ export default function ProjectDetail({ project, more, copy = {}, hidden = {} })
 
       {isShown(hidden, "projects-case") ? <section className="mx-auto w-full max-w-[872px] space-y-14 px-5 py-20 min-[920px]:px-0">
         <Reveal>
-          <ScrollWords as="h2" text={copy.projectChallengeTitle || "The challenge"} className="text-[40px] uppercase leading-none" style={{ letterSpacing: "-0.02em" }} />
+          <ScrollWords as="h2" text={copy.projectChallengeTitle || "The challenge"} className="display-statement" />
           <p className="mt-5 text-lg leading-relaxed text-[#b9b8b8]">{story.challenge}</p>
         </Reveal>
         <Reveal>
-          <ScrollWords as="h2" text={copy.projectSolutionTitle || "Our solution"} className="text-[40px] uppercase leading-none" style={{ letterSpacing: "-0.02em" }} />
+          <ScrollWords as="h2" text={copy.projectSolutionTitle || "Our solution"} className="display-statement" />
           <p className="mt-5 text-lg leading-relaxed text-[#b9b8b8]">{story.solution}</p>
         </Reveal>
       </section> : null}
@@ -98,7 +98,7 @@ export default function ProjectDetail({ project, more, copy = {}, hidden = {} })
       {isShown(hidden, "projects-case") && more.length ? (
         <section className="pt-8">
           <div className="mx-auto mb-10 flex max-w-[1320px] flex-col gap-6 px-5 sm:flex-row sm:items-end sm:justify-between md:px-10">
-            <ScrollWords as="h2" text={copy.projectMoreTitle || "More projects"} className="text-[clamp(3rem,6vw,5rem)] uppercase leading-[0.8]" />
+            <ScrollWords as="h2" text={copy.projectMoreTitle || "More projects"} className="display-title" />
             <Link href="/projects" className="text-[13px] uppercase tracking-[0.22em] text-white/80 hover:text-lime">
               {copy.projectsViewAll || "View all projects"}
             </Link>

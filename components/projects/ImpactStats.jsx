@@ -89,7 +89,7 @@ export default function ImpactStats({ intro, impacts, title = "Project impact" }
         <ScrollWords
           as="h2"
           text={title}
-          className="text-[40px] uppercase leading-none"
+          className="display-statement"
           style={{ letterSpacing: "-0.02em" }}
         />
         {intro ? (

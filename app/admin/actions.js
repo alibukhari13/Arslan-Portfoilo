@@ -1,9 +1,10 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { adminPages } from "@/components/admin/pages";
 import { connection } from "next/server";
 import { isAdmin } from "@/lib/auth";
+import { clearSiteCache } from "@/lib/getSite";
 import { lists, singles, tables } from "@/lib/collections";
 import { serviceClient } from "@/lib/supabase";
 
@@ -11,6 +12,12 @@ const specs = new Map([...singles, ...lists].map((item) => [item.table, item]));
 
 function denied() {
   return { ok: false, error: "Sign in again." };
+}
+
+function publish() {
+  clearSiteCache();
+  updateTag("site");
+  revalidatePath("/", "layout");
 }
 
 async function gate() {
@@ -97,7 +104,7 @@ export async function saveRecord(table, record) {
     : access.client.from(table).insert(row);
   const { error } = await query;
   if (error) return { ok: false, error: error.message };
-  revalidatePath("/", "layout");
+  publish();
   return { ok: true };
 }
 
@@ -107,7 +114,7 @@ export async function saveProfile(record) {
   const row = { ...clean("profile", record || {}), id: 1 };
   const { error } = await access.client.from("profile").upsert(row);
   if (error) return { ok: false, error: error.message };
-  revalidatePath("/", "layout");
+  publish();
   return { ok: true };
 }
 
@@ -121,7 +128,7 @@ export async function saveCopy(data) {
   if (next.hiddenSections == null && previousHidden) next.hiddenSections = previousHidden;
   const { error } = await access.client.from("site_copy").upsert({ id: 1, data: next });
   if (error) return { ok: false, error: error.message };
-  revalidatePath("/", "layout");
+  publish();
   return { ok: true };
 }
 
@@ -140,7 +147,7 @@ export async function setSectionHidden(sectionId, hidden) {
   data.hiddenSections = hiddenSections;
   const { error } = await access.client.from("site_copy").upsert({ id: 1, data });
   if (error) return { ok: false, error: error.message };
-  revalidatePath("/", "layout");
+  publish();
   return { ok: true, hiddenSections };
 }
 
@@ -149,7 +156,7 @@ export async function setMessageRead(id, read = true) {
   if (!access.client) return access.ok ? denied() : access;
   const { error } = await access.client.from("messages").update({ read: Boolean(read) }).eq("id", id);
   if (error) return { ok: false, error: error.message };
-  revalidatePath("/", "layout");
+  revalidatePath("/admin");
   return { ok: true };
 }
 
@@ -158,7 +165,7 @@ export async function deleteMessage(id) {
   if (!access.client) return access.ok ? denied() : access;
   const { error } = await access.client.from("messages").delete().eq("id", id);
   if (error) return { ok: false, error: error.message };
-  revalidatePath("/", "layout");
+  revalidatePath("/admin");
   return { ok: true };
 }
 
@@ -168,7 +175,7 @@ export async function removeRecord(table, id) {
   if (!access.client) return access.ok ? denied() : access;
   const { error } = await access.client.from(table).delete().eq("id", id);
   if (error) return { ok: false, error: error.message };
-  revalidatePath("/", "layout");
+  publish();
   return { ok: true };
 }
 
@@ -181,6 +188,6 @@ export async function reorderRecords(table, ids) {
   );
   const failed = results.find((result) => result.error);
   if (failed) return { ok: false, error: failed.error.message };
-  revalidatePath("/", "layout");
+  publish();
   return { ok: true };
 }

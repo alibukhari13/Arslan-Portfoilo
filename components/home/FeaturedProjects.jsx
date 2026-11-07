@@ -37,13 +37,9 @@ export default function FeaturedProjects({ projects = [], title, labels = {} }) 
 
   return (
     <section id="projects" className="py-16">
-      <div className="mx-auto mb-8 max-w-[1240px] px-5 md:px-8">
+      <div className="mx-auto mb-12 max-w-[1440px] px-5 text-center md:px-10 lg:px-[60px]">
         <Reveal>
-          <ScrollWords
-            as="h2"
-            text={title}
-            className="max-w-[16ch] text-[clamp(2.2rem,4.6vw,4.2rem)] font-medium uppercase leading-[0.92] tracking-tight"
-          />
+          <ScrollWords as="h2" text={title} className="display-title mx-auto max-w-[692px]" />
         </Reveal>
       </div>
 

@@ -17,7 +17,7 @@ html {
 body {
   background: #0e0e0e;
   color: #fff;
-  font-family: "Switzer", var(--font-manrope), sans-serif;
+  font-family: var(--font-switzer), sans-serif;
   text-rendering: optimizeLegibility;
 }
 
@@ -43,10 +43,24 @@ h6,
   letter-spacing: -0.03em;
 }
 
+.display-title {
+  font-size: clamp(2.75rem, 6vw, 5rem);
+  line-height: 0.8;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+}
+
+.display-statement {
+  font-size: clamp(1.7rem, 3vw, 2.5rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
 .admin-ui h1,
 .admin-ui h2,
 .admin-ui h3 {
-  font-family: "Switzer", var(--font-manrope), sans-serif;
+  font-family: var(--font-switzer), sans-serif;
   font-weight: 500;
   letter-spacing: -0.02em;
 }

@@ -14,14 +14,14 @@ export default async function ServicesView() {
   return (
     <main className="pt-28 md:pt-36">
       {heading || toolsOn ? (
-        <section className="mx-auto max-w-[1240px] px-5 md:px-10">
+        <section className="mx-auto max-w-[1320px] px-5 md:px-10">
           {heading ? (
             <Reveal>
               <ScrollWords
                 as="h1"
                 text={copy.servicesPageLead}
                 muted={copy.servicesPageRest}
-                className="max-w-[14ch] text-[clamp(2.7rem,6.4vw,5.5rem)] font-medium uppercase leading-[0.9] tracking-[-0.035em]"
+                className="display-title max-w-[608px]"
               />
             </Reveal>
           ) : null}

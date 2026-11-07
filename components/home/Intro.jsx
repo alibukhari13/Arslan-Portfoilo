@@ -6,11 +6,11 @@ import ScrollWords from "../ui/ScrollWords";
 export default async function Intro() {
   const { stats, tools, copy } = await getSite();
   return (
-    <section className="mx-auto grid max-w-[1240px] items-start gap-12 px-5 py-24 md:px-8 lg:grid-cols-[1.25fr_.75fr] lg:py-32">
+    <section className="mx-auto grid w-full max-w-[1320px] items-start gap-12 px-5 py-24 md:px-10 lg:grid-cols-[minmax(0,784px)_minmax(260px,1fr)] lg:py-32">
       <div className="min-w-0">
         <ScrollWords
           text={copy.introStatement}
-          className="font-pixel text-[clamp(1.7rem,3vw,2.5rem)] font-normal uppercase leading-[1.05]"
+          className="display-statement max-w-[784px]"
         />
         <p className="mb-4 mt-12 text-sm text-mist">{copy.toolsLabel}</p>
         <Marquee

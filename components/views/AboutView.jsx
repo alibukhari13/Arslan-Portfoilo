@@ -21,7 +21,7 @@ export default async function AboutView() {
             muted={copy.aboutRest}
             mutedColor="rgba(255,255,255,0.35)"
             breakBeforeMuted
-            className="text-[clamp(2.8rem,6vw,5.4rem)] font-medium uppercase leading-[0.9] tracking-tight"
+            className="display-title max-w-[608px]"
           />
           <p className="mt-8 max-w-xl text-base leading-relaxed text-mist">{profile.intro}</p>
         </Reveal>
@@ -71,7 +71,7 @@ export default async function AboutView() {
             <ScrollWords
               as="h2"
               text={copy.aboutName}
-              className="mt-3 text-[clamp(2.2rem,4vw,3.6rem)] font-medium uppercase leading-[0.92] tracking-tight"
+              className="display-title mt-3 max-w-[608px]"
             />
             <p className="mt-3 text-mist">
               {profile.role} · {profile.location}
@@ -103,7 +103,7 @@ export default async function AboutView() {
           <ScrollWords
             as="h2"
             text={copy.experienceTitle}
-            className="mb-8 text-[clamp(2rem,4vw,3.4rem)] font-medium uppercase leading-none tracking-tight"
+            className="display-title mb-8 max-w-[608px]"
           />
         </Reveal>
         <div className="grid gap-4 md:grid-cols-2">
@@ -127,7 +127,7 @@ export default async function AboutView() {
           <ScrollWords
             as="h2"
             text={copy.studyTitle}
-            className="mb-6 text-[clamp(2rem,4vw,3.4rem)] font-medium uppercase leading-none tracking-tight"
+            className="display-title mb-6 max-w-[608px]"
           />
         </Reveal>
         <ul className="border-y border-white/10">

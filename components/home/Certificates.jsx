@@ -15,8 +15,7 @@ export default async function Certificates() {
           text={copy.certificatesLead}
           muted={copy.certificatesRest}
           breakBeforeMuted
-          className="max-w-[12ch] text-[clamp(2.75rem,6vw,5rem)] uppercase leading-[0.8]"
-          style={{ letterSpacing: "-0.04em" }}
+          className="display-title max-w-[608px]"
         />
       </Reveal>
       <div className="mt-16 grid gap-6 md:grid-cols-2">
@@ -27,6 +26,8 @@ export default async function Certificates() {
                 <img
                   src={cert.image}
                   alt={`${cert.title} certificate, ${profile.name}`}
+                  loading="lazy"
+                  decoding="async"
                   className="h-full w-full object-contain transition-transform duration-700 ease-out group-hover:scale-[1.02]"
                 />
               </div>

@@ -28,8 +28,7 @@ export default async function PricingView() {
                   text={title.lead}
                   muted={title.rest}
                   breakBeforeMuted
-                  className="mx-auto max-w-[742px] text-center text-[clamp(2.75rem,6vw,5rem)] uppercase leading-[0.8]"
-                  style={{ letterSpacing: "-0.04em" }}
+                  className="display-title mx-auto max-w-[742px] text-center"
                 />
               </Reveal>
               <Reveal delay={100}>
@@ -57,21 +56,20 @@ export default async function PricingView() {
         />
       </div> : null}
 
-      {show("pricing-extra") ? <section className="mx-auto max-w-[1100px] px-5 py-16 md:px-8">
+      {show("pricing-extra") ? <section className="mx-auto flex w-full max-w-[1320px] flex-col items-center px-5 py-24 md:px-10">
         <Reveal>
           <ScrollWords
             as="h2"
             text={copy.pricingExtraTitle}
-            className="max-w-[16ch] text-[clamp(2rem,4vw,3.4rem)] font-medium uppercase leading-[0.95] tracking-tight"
+            className="display-title max-w-[700px] text-center"
           />
         </Reveal>
-        <ul className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {extraServices.map((item, index) => (
-            <Reveal key={item} as="li" delay={(index % 6) * 50}>
-              <div className="border border-white/10 px-4 py-4 text-sm text-white/85 transition-colors duration-300 hover:border-lime/60 hover:text-white">
-                {item}
-              </div>
-            </Reveal>
+        <ul className="mt-16 grid w-full grid-cols-1 gap-x-10 gap-y-5 border border-white/15 px-8 py-10 sm:grid-cols-2 lg:grid-cols-3">
+          {extraServices.map((item) => (
+            <li key={item} className="flex items-center gap-3 text-base text-white">
+              <span aria-hidden className="text-lime">✓</span>
+              {item}
+            </li>
           ))}
         </ul>
       </section> : null}

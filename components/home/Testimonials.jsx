@@ -20,7 +20,7 @@ function StudyFaces({ items }) {
     <div className="mt-6 h-12 w-[200px] overflow-hidden">
       <div className="study-ticker flex w-max" style={{ animationDuration: `${seconds}s` }}>
         {row.map((item, index) => (
-          <img key={`${item.image}-${index}`} src={item.image} alt="" className="mr-2 h-12 w-12 shrink-0 rounded-full object-cover" />
+          <img key={`${item.image}-${index}`} src={item.image} alt="" loading="lazy" decoding="async" className="mr-2 h-12 w-12 shrink-0 rounded-full object-cover" />
         ))}
       </div>
     </div>
@@ -43,7 +43,7 @@ export default async function Testimonials() {
       <div className="mx-auto mb-20 flex w-full max-w-[1440px] flex-col gap-8 px-5 sm:px-8 md:flex-row md:items-center md:justify-between lg:px-[60px]">
         <Reveal className="max-w-[608px]">
           <h2
-            className="font-pixel text-[40px] uppercase leading-[0.8] sm:text-[56px] lg:text-[80px] lg:leading-[64px]"
+            className="display-title max-w-[608px]"
             style={{ letterSpacing: "-0.04em" }}
           >
             <span className="text-white">{title.lead} </span>

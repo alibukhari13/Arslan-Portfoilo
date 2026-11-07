@@ -64,7 +64,7 @@ export default function WordCycle({ first = "ARSLAN", second = "STUDIO" }) {
               <span
                 className="mb-[0.12em] ml-[0.04em] inline-block text-[0.42em] font-medium leading-none tracking-normal"
                 style={{
-                  fontFamily: "Switzer, sans-serif",
+                  fontFamily: "var(--font-switzer), sans-serif",
                   transform: shift,
                   transition: instant ? "none" : `transform 700ms ${EASE} ${letters.length * 50}ms`,
                 }}

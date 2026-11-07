@@ -50,12 +50,11 @@ export function ProjectCard({ project, priority = false, labels = {} }) {
               alt={project.title}
               fill
               className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06]"
-              priority={priority}
               sizes="424px"
             />
           </div>
           <div className="flex items-center justify-between gap-4 px-2 pt-4">
-            <h2 className="min-w-0 flex-1 font-pixel text-[clamp(1.7rem,3vw,2.5rem)] uppercase leading-[0.9] text-ink">{project.title}</h2>
+            <h2 className="min-w-0 flex-1 font-pixel text-[32px] uppercase leading-10 text-ink sm:text-[40px]" style={{ letterSpacing: "-0.02em" }}>{project.title}</h2>
             <span className="grid h-10 w-10 shrink-0 place-items-center text-ink transition-transform duration-300 group-hover:translate-x-1">
               <ArrowIcon className="h-5 w-5" />
             </span>

@@ -22,8 +22,7 @@ export default async function Pricing() {
             text={title.lead}
             muted={title.rest}
             breakBeforeMuted
-            className="max-w-[742px] text-center text-[clamp(2.75rem,6vw,5rem)] uppercase leading-[0.8]"
-            style={{ letterSpacing: "-0.04em" }}
+            className="display-title max-w-[742px] text-center"
           />
         </Reveal>
         <PricingCards plans={plans} note={copy.pricingNote} copy={copy} />

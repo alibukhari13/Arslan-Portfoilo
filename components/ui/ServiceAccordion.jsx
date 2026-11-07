@@ -23,7 +23,7 @@ export default function ServiceAccordion({ items }) {
                 <button
                   type="button"
                   onClick={toggle}
-                  className={`w-full overflow-hidden text-center font-pixel text-[clamp(1.4rem,2.2vw,2rem)] font-normal uppercase leading-none transition-all duration-300 ${
+                  className={`w-full overflow-hidden text-center font-pixel text-[32px] font-normal uppercase leading-10 transition-all duration-300 md:text-[40px] ${
                     isOpen ? "h-0 py-0 opacity-0" : "py-2 opacity-100"
                   }`}
                 >
@@ -37,7 +37,7 @@ export default function ServiceAccordion({ items }) {
                         {isOpen ? <div aria-hidden className="wipe-in absolute inset-0 bg-ink" /> : null}
                       </div>
                       <div className="text-left">
-                        <h3 className="font-pixel text-[clamp(1.6rem,2.4vw,2.5rem)] font-normal uppercase leading-none">{item.title}</h3>
+                        <h3 className="font-pixel text-[32px] font-normal uppercase leading-10 md:text-[40px]" style={{ letterSpacing: "-0.02em" }}>{item.title}</h3>
                         <p className="mt-4 max-w-md text-sm leading-relaxed text-mist md:text-base">{item.description}</p>
                         <ul className="mt-5 flex flex-wrap gap-2">
                           {item.tags.map((tag) => (

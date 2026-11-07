@@ -66,7 +66,7 @@ export default function ServiceCards({ items }) {
             <ScrollWords
               as="h2"
               text={item.title}
-              className="text-[32px] font-normal uppercase leading-none tracking-[-0.8px] sm:text-[40px]"
+              className="display-statement"
             />
             <p className="mt-4 max-w-[476px] text-base leading-relaxed text-[#b9b8b8] sm:text-lg">{item.description}</p>
             <ul className="mt-8 flex max-w-[540px] flex-wrap gap-x-6 gap-y-3">

@@ -45,7 +45,7 @@ export default async function Hero() {
         <div className="flex gap-4 px-5">
         {shots.map((project) => (
           <div key={project.slug} className="relative h-40 w-40 shrink-0 overflow-hidden bg-panel">
-            <Photo src={project.image} alt={project.title} fill className="object-cover transition-transform duration-700 hover:scale-105" sizes="160px" priority />
+            <Photo src={project.image} alt={project.title} fill className="object-cover transition-transform duration-700 hover:scale-105" sizes="160px" />
           </div>
         ))}
         </div>

@@ -26,7 +26,7 @@ function Card({ item }) {
   return (
     <article className="flex h-full min-h-[420px] w-full flex-col bg-panel sm:h-[434px] sm:flex-row">
       <div className="relative h-[220px] w-full shrink-0 overflow-hidden sm:h-full sm:w-[337px]">
-        {item.image ? <img src={item.image} alt="" className="absolute inset-0 h-full w-full object-cover" /> : null}
+        {item.image ? <img src={item.image} alt="" loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" /> : null}
       </div>
       <div className="flex min-h-[250px] flex-1 flex-col justify-between p-8 sm:h-full sm:min-h-0 sm:w-[430px]">
         <div className="flex max-w-[365px] flex-col gap-6">

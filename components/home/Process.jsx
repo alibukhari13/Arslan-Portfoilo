@@ -38,7 +38,7 @@ export default function Process({ process }) {
                 text={process.titleLead}
                 muted={process.titleRest}
                 mutedColor="rgba(255,255,255,0.3)"
-                className="max-w-[11ch] text-[clamp(2.5rem,5vw,4.6rem)] font-medium uppercase leading-[0.9] tracking-tight"
+                className="display-title max-w-[576px]"
               />
             </Reveal>
             <ol className="mt-10 space-y-3">
@@ -47,7 +47,7 @@ export default function Process({ process }) {
                   <button
                     type="button"
                     onClick={() => setStep(index)}
-                    className={`font-pixel text-left text-lg font-normal uppercase transition-colors md:text-2xl ${
+                    className={`font-pixel text-left text-[28px] font-normal uppercase leading-none transition-colors md:text-[40px] ${
                       index === step ? "text-white" : "text-white/30 hover:text-white/60"
                     }`}
                   >

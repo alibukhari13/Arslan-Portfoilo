@@ -9,12 +9,12 @@ export default async function ProjectsView() {
   const { projects, copy, hidden } = await getSite();
   return (
     <main className="pt-28">
-      {isShown(hidden, "projects-intro") ? <div className="mx-auto max-w-[760px] px-5 pb-14 text-center md:px-8">
+      {isShown(hidden, "projects-intro") ? <div className="mx-auto max-w-[1320px] px-5 pb-16 text-center md:px-10">
         <Reveal>
           <ScrollWords
             as="h1"
             text={copy.projectsPageTitle || copy.projectsTitle}
-            className="text-[clamp(2.8rem,6vw,5rem)] uppercase leading-[0.8]"
+            className="display-title mx-auto max-w-[692px]"
           />
         </Reveal>
         {copy.projectsPageText ? <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-mist">{copy.projectsPageText}</p> : null}

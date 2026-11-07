@@ -33,7 +33,7 @@ export default function ValueStory({ items, lead = "How the work ", rest = "stay
               text={lead}
               muted={rest}
               mutedColor="rgba(255,255,255,0.3)"
-              className="max-w-[12ch] text-[clamp(2.4rem,5vw,4.4rem)] font-medium uppercase leading-[0.9] tracking-tight"
+              className="display-title max-w-[576px]"
             />
             <ol className="mt-10 space-y-4">
               {items.map((item, index) => {
@@ -43,7 +43,7 @@ export default function ValueStory({ items, lead = "How the work ", rest = "stay
                     <button
                       type="button"
                       onClick={() => setStep(index)}
-                      className={`font-pixel text-left text-lg font-normal uppercase transition-all duration-500 md:text-2xl ${
+                      className={`font-pixel text-left text-[28px] font-normal uppercase leading-none transition-all duration-500 md:text-[40px] ${
                         active ? "translate-x-0 text-white" : "-translate-x-3 text-white/30 hover:text-white/60"
                       }`}
                     >

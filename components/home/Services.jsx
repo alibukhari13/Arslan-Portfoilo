@@ -12,7 +12,7 @@ export default async function Services() {
         <ScrollWords
           as="h2"
           text={copy.servicesTitle}
-          className="max-w-[12ch] text-[clamp(2.4rem,5vw,4.6rem)] font-medium uppercase leading-[0.92] tracking-tight"
+          className="display-title max-w-[608px]"
         />
       </Reveal>
       <ServiceAccordion items={services.slice(0, 5)} />

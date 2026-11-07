@@ -9,7 +9,7 @@ export default function LegalView({ page, updatedLabel = "Last updated" }) {
         <ScrollWords
           as="h1"
           text={page.title}
-          className="mt-3 text-[clamp(2.6rem,6vw,4.6rem)] font-medium uppercase leading-[0.92] tracking-tight"
+          className="display-title mt-3 max-w-[608px]"
         />
         <p className="mt-6 text-lg text-white/75">{page.lede}</p>
       </Reveal>

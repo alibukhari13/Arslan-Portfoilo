@@ -25,8 +25,7 @@ export default function Footer({ profile, footerNav = [], resourceNav = [], copy
           <ScrollWords
             as="h2"
             text={newsletterTitle.split("\n").filter(Boolean).join(" ")}
-            breakAt={newsletterTitle.split("\n")[0].trim().split(/\s+/).filter(Boolean).length}
-            className="text-3xl font-medium uppercase leading-none tracking-tight md:text-5xl"
+            className="display-statement max-w-[424px]"
           />
           <form onSubmit={onSubmit} className="mt-8 flex max-w-md border border-white/15">
             <label className="sr-only" htmlFor="newsletter-email">

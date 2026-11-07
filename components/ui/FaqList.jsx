@@ -14,11 +14,11 @@ export default function FaqList({ items }) {
           <div key={item.question} className="border-b border-white/10">
             <button
               type="button"
-              className="flex w-full items-center justify-between gap-6 py-5 text-left"
+              className="flex w-full items-center justify-between gap-6 py-6 text-left"
               aria-expanded={isOpen}
               onClick={() => setOpen(isOpen ? -1 : index)}
             >
-              <span className="font-pixel text-lg font-normal uppercase md:text-2xl">{item.question}</span>
+              <span className="text-[20px] font-medium leading-[30px] tracking-[-0.01em]">{item.question}</span>
               <span className={`shrink-0 transition-transform duration-300 ${isOpen ? "rotate-45" : ""}`}>
                 <PlusIcon />
               </span>
