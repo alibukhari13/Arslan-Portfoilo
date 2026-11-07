@@ -72,6 +72,18 @@ h6,
   animation: ticker 48s linear infinite reverse;
 }
 
+.study-ticker {
+  animation-name: ticker;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .study-ticker {
+    animation: none;
+  }
+}
+
 .marquee:hover .animate-ticker,
 .marquee:hover .animate-ticker-slow,
 .marquee:hover .animate-ticker-reverse {

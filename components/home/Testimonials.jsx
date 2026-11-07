@@ -2,6 +2,31 @@ import { getSite } from "@/lib/getSite";
 import Reveal from "../ui/Reveal";
 import StudySlider from "./StudySlider";
 
+function studyFaces(items) {
+  const source = items.filter((item) => item.image);
+  if (!source.length) return [];
+  const faces = [];
+  while (faces.length < Math.max(4, source.length)) faces.push(...source);
+  return faces.slice(0, Math.max(4, source.length));
+}
+
+function StudyFaces({ items }) {
+  const faces = studyFaces(items);
+  if (!faces.length) return null;
+  const seconds = (faces.length * 56) / 40;
+  const row = [...faces, ...faces];
+
+  return (
+    <div className="mt-6 h-12 w-[200px] overflow-hidden">
+      <div className="study-ticker flex w-max" style={{ animationDuration: `${seconds}s` }}>
+        {row.map((item, index) => (
+          <img key={`${item.image}-${index}`} src={item.image} alt="" className="mr-2 h-12 w-12 shrink-0 rounded-full object-cover" />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function splitTitle(title) {
   const value = String(title || "");
   const at = value.toLowerCase().indexOf(" that ");
@@ -27,11 +52,7 @@ export default async function Testimonials() {
         </Reveal>
         <div className="w-[200px] shrink-0">
           <p className="text-lg leading-[27px] tracking-[-0.01em] text-white">{copy.principlesNote}</p>
-          <div className="mt-6 flex gap-2">
-            {principles.slice(0, 4).map((item) => (
-              <img key={item.name} src={item.image} alt="" className="h-12 w-12 rounded-full object-cover" />
-            ))}
-          </div>
+          <StudyFaces items={principles} />
         </div>
       </div>
       <div className="mx-auto w-full max-w-[1440px] px-5 sm:px-8 lg:px-[60px]">
