@@ -38,9 +38,9 @@ export default function ContactForm({ compact = false, page = false, source = "H
   if (sent) {
     return (
       <div className="border border-white/10 bg-panel p-6">
-        <p className="text-lg font-medium">{text.formSentTitle || "Message received."}</p>
+        <p className="text-lg font-medium">{text.formSentTitle || "Your message is sent."}</p>
         <p className="mt-2 text-sm leading-6 text-mist">
-          {text.formSentBody || "It is saved in the studio admin. Arslan will reply to the email you entered."}
+          {text.formSentBody || "Thank you for writing. Arslan will reply soon."}
         </p>
       </div>
     );
@@ -88,7 +88,7 @@ export default function ContactForm({ compact = false, page = false, source = "H
         </ArrowButton>
       </div>
       <p className="text-xs leading-5 text-white/40">
-        The message is saved for Arslan. If this form fails, write to{" "}
+        If this form does not send, write to{" "}
         <a className="text-lime" href={`mailto:${email}`}>{email}</a>.
       </p>
     </form>
