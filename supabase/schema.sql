@@ -18,6 +18,7 @@ drop table if exists public.highlights cascade;
 drop table if exists public.credentials cascade;
 drop table if exists public.legal_pages cascade;
 drop table if exists public.links cascade;
+drop table if exists public.messages cascade;
 
 create table public.profile (
   id int primary key,
@@ -454,3 +455,15 @@ alter table public.projects add column if not exists solution text not null defa
 alter table public.projects add column if not exists impact_intro text not null default '';
 alter table public.projects add column if not exists impact_lines text[] not null default '{}';
 alter table public.projects add column if not exists gallery text[] not null default '{}';
+
+create table if not exists public.messages (
+  id bigint generated always as identity primary key,
+  name text not null default '',
+  email text not null default '',
+  message text not null default '',
+  source text not null default 'contact',
+  read boolean not null default false,
+  created_at timestamptz not null default now()
+);
+
+alter table public.messages enable row level security;

@@ -68,7 +68,9 @@ export async function loadAdmin() {
   const results = await Promise.all(
     names.map((name) => {
       const query = access.client.from(name).select("*");
-      return name === "profile" || name === "site_copy" ? query : query.order("sort", { ascending: true });
+      if (name === "profile" || name === "site_copy") return query;
+      if (name === "messages") return query.order("created_at", { ascending: false });
+      return query.order("sort", { ascending: true });
     }),
   );
   const failed = results.find((result) => result.error);
@@ -112,6 +114,24 @@ export async function saveCopy(data) {
   const access = await gate();
   if (!access.client) return access.ok ? denied() : access;
   const { error } = await access.client.from("site_copy").upsert({ id: 1, data: data || {} });
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/", "layout");
+  return { ok: true };
+}
+
+export async function setMessageRead(id, read = true) {
+  const access = await gate();
+  if (!access.client) return access.ok ? denied() : access;
+  const { error } = await access.client.from("messages").update({ read: Boolean(read) }).eq("id", id);
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/", "layout");
+  return { ok: true };
+}
+
+export async function deleteMessage(id) {
+  const access = await gate();
+  if (!access.client) return access.ok ? denied() : access;
+  const { error } = await access.client.from("messages").delete().eq("id", id);
   if (error) return { ok: false, error: error.message };
   revalidatePath("/", "layout");
   return { ok: true };

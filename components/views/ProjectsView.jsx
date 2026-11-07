@@ -19,7 +19,7 @@ export default async function ProjectsView() {
         {copy.projectsPageText ? <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-mist">{copy.projectsPageText}</p> : null}
       </div>
       <ProjectFrames projects={projects} labels={copy} />
-      <ContactBand />
+      <ContactBand source="Projects" />
     </main>
   );
 }

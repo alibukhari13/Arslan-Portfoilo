@@ -8,6 +8,7 @@ export default function ArrowButton({
   type = "button",
   className = "",
   onClick,
+  disabled = false,
 }) {
   const shell =
     variant === "lime"
@@ -55,7 +56,7 @@ export default function ArrowButton({
   }
 
   return (
-    <button type={type} onClick={onClick} className={classes}>
+    <button type={type} onClick={onClick} disabled={disabled} className={`${classes} disabled:cursor-wait disabled:opacity-40`}>
       {inner}
     </button>
   );

@@ -33,7 +33,7 @@ export default async function ServicesView() {
       <div className="pt-10 md:pt-16">
         <ServiceCards items={services} />
       </div>
-      <ContactBand />
+      <ContactBand source="Services" />
     </main>
   );
 }

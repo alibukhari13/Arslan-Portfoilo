@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { copy as copyDefaults } from "@/data/site";
 import { lists, singles } from "@/lib/collections";
-import { loadAdmin, removeRecord, reorderRecords, saveCopy, saveProfile, saveRecord } from "@/app/admin/actions";
+import { deleteMessage, loadAdmin, removeRecord, reorderRecords, saveCopy, saveProfile, saveRecord, setMessageRead } from "@/app/admin/actions";
 import { Mark } from "@/components/ui/Icons";
 import { adminPages } from "@/components/admin/pages";
 
@@ -576,6 +576,7 @@ export default function AdminPanel({ initialAuthed }) {
 
   function sectionCount(section) {
     if (!data) return null;
+    if (section.inbox) return (data.messages || []).filter((item) => !item.read).length;
     if (section.certs) return Array.isArray(copy.certificates) ? copy.certificates.length : 0;
     if (section.lists?.length !== 1) return null;
     const spec = listSpecs[section.lists[0].id];
@@ -655,6 +656,7 @@ export default function AdminPanel({ initialAuthed }) {
         <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto px-3 pb-6">
           {adminPages.map((page) => {
             const open = menu === page.id;
+            const unread = page.id === "inbox" && data ? (data.messages || []).filter((item) => !item.read).length : null;
             return (
               <div key={page.id}>
                 <button
@@ -665,10 +667,13 @@ export default function AdminPanel({ initialAuthed }) {
                     setMenu(next);
                     if (next && !page.sections.some((section) => section.id === tab)) setTab(page.sections[0].id);
                   }}
-                  className={`flex h-10 w-full items-center justify-between px-3 text-left text-sm ${open || current.page.id === page.id ? "text-white" : "text-white/60 hover:text-white"}`}
+                  className={`flex h-10 w-full items-center justify-between gap-2 px-3 text-left text-sm ${open || current.page.id === page.id ? "text-white" : "text-white/60 hover:text-white"}`}
                 >
                   <span className="truncate">{page.title}</span>
-                  <span className={`text-[10px] text-white/40 transition-transform ${open ? "rotate-180" : ""}`}>▾</span>
+                  <span className="flex items-center gap-2">
+                    {unread ? <span className="grid h-5 min-w-5 place-items-center bg-lime px-1 text-[11px] font-semibold text-ink">{unread}</span> : null}
+                    <span className={`text-[10px] text-white/40 transition-transform ${open ? "rotate-180" : ""}`}>▾</span>
+                  </span>
                 </button>
                 {open ? (
                   <div className="space-y-0.5 pb-2">
@@ -800,6 +805,50 @@ export default function AdminPanel({ initialAuthed }) {
               {current.certs ? <CertificatesEditor items={copy.certificates} onChange={(certificates) => setCopy({ ...copy, certificates })} /> : null}
               <SaveBar busy={busy} sticky={!current.lists?.length} label="Save this section" />
             </form>
+          ) : null}
+
+          {data && current.inbox ? (
+            <div className="mt-8 space-y-3">
+              {(data.messages || []).length ? (data.messages || []).map((item) => {
+                const reply = `mailto:${item.email}?subject=${encodeURIComponent("Re: your note to Arslan Sabir")}&body=${encodeURIComponent(`Hi ${item.name},\n\n`)}`;
+                const sentAt = item.created_at ? new Date(item.created_at).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" }) : "";
+                return (
+                  <article key={item.id} className={`border bg-panel p-5 ${item.read ? "border-white/10" : "border-lime/50"}`}>
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <p className="text-base font-medium">{item.name}</p>
+                        <a className="mt-1 block text-sm text-lime" href={`mailto:${item.email}`}>{item.email}</a>
+                      </div>
+                      <div className="text-right text-xs uppercase tracking-[0.14em] text-white/40">
+                        <p>{item.source || "Website"}</p>
+                        <p className="mt-1 normal-case tracking-normal">{sentAt}</p>
+                      </div>
+                    </div>
+                    <p className="mt-4 whitespace-pre-wrap text-sm leading-6 text-white/80">{item.message}</p>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <a href={reply} className={quietBtn}>Reply by email</a>
+                      {item.read ? (
+                        <button type="button" className={quietBtn} disabled={busy} onClick={() => run(() => setMessageRead(item.id, false), "Marked unread.")}>Mark unread</button>
+                      ) : (
+                        <button type="button" className={quietBtn} disabled={busy} onClick={() => run(() => setMessageRead(item.id, true), "Marked read.")}>Mark read</button>
+                      )}
+                      <button
+                        type="button"
+                        className={`${quietBtn} text-red-300 hover:text-red-200`}
+                        disabled={busy}
+                        onClick={() => {
+                          if (window.confirm(`Delete the message from ${item.name}?`)) run(() => deleteMessage(item.id), "Deleted.");
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </article>
+                );
+              }) : (
+                <p className="border border-white/10 bg-panel px-5 py-8 text-sm text-white/50">No messages yet. A form on the website will add one here.</p>
+              )}
+            </div>
           ) : null}
 
           {data && current.lists?.length ? (

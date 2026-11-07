@@ -106,7 +106,7 @@ export default function ProjectDetail({ project, more, copy = {} }) {
         </section>
       ) : null}
 
-      <ContactBand />
+      <ContactBand source="Project" />
     </main>
   );
 }

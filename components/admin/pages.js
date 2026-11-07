@@ -37,6 +37,19 @@ const caseStudyKeys = [
 
 export const adminPages = [
   {
+    id: "inbox",
+    title: "Messages",
+    href: "/contact",
+    sections: [
+      {
+        id: "inbox-messages",
+        label: "Inbox",
+        inbox: true,
+        updates: "Messages sent from the website forms land here. Nothing is emailed automatically. Open a message, then use Reply to write back from your own email.",
+      },
+    ],
+  },
+  {
     id: "home",
     title: "Home",
     href: "/",

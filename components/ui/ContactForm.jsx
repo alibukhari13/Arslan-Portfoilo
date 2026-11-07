@@ -3,31 +3,44 @@
 import { useState } from "react";
 import ArrowButton from "./ArrowButton";
 
-export default function ContactForm({ compact = false, page = false, email = "marslansabir3322@gmail.com", text = {} }) {
+export default function ContactForm({ compact = false, page = false, source = "Home", email = "marslansabir3322@gmail.com", text = {} }) {
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
 
-  function onSubmit(event) {
+  async function onSubmit(event) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const name = String(data.get("name") || "").trim();
     const from = String(data.get("email") || "").trim();
     const message = String(data.get("message") || "").trim();
-    const body = encodeURIComponent(`Name: ${name}\nEmail: ${from}\n\n${message}`);
-    const subject = encodeURIComponent(`${text.formMailSubject || "Project inquiry from"} ${name || "portfolio"}`);
-    window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
-    setSent(true);
+    setBusy(true);
+    setError("");
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email: from, message, source }),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || !result.ok) {
+        setError(result.error || "The message could not be sent.");
+        return;
+      }
+      setSent(true);
+    } catch {
+      setError("The message could not be sent. Please try again.");
+    } finally {
+      setBusy(false);
+    }
   }
 
   if (sent) {
     return (
       <div className="border border-white/10 bg-panel p-6">
-        <p className="text-lg font-medium">{text.formSentTitle || "Your email app should be open."}</p>
-        <p className="mt-2 text-sm text-mist">
-          {text.formSentBody || "If it did not, write directly to"}{" "}
-          <a className="text-lime" href={`mailto:${email}`}>
-            {email}
-          </a>
-          .
+        <p className="text-lg font-medium">{text.formSentTitle || "Message received."}</p>
+        <p className="mt-2 text-sm leading-6 text-mist">
+          {text.formSentBody || "It is saved in the studio admin. Arslan will reply to the email you entered."}
         </p>
       </div>
     );
@@ -68,11 +81,16 @@ export default function ContactForm({ compact = false, page = false, email = "ma
           className={`${controlClass} resize-none ${page ? "h-[180px] py-5" : ""}`}
         />
       </label>
+      {error ? <p className="text-sm text-red-300">{error}</p> : null}
       <div className={page ? "flex justify-center pt-4" : ""}>
-        <ArrowButton type="submit" variant={compact || page ? "lime" : "solid"}>
-          {text.formSend || "Send message"}
+        <ArrowButton type="submit" disabled={busy} variant={compact || page ? "lime" : "solid"}>
+          {busy ? "Sending" : text.formSend || "Send message"}
         </ArrowButton>
       </div>
+      <p className="text-xs leading-5 text-white/40">
+        The message is saved for Arslan. If this form fails, write to{" "}
+        <a className="text-lime" href={`mailto:${email}`}>{email}</a>.
+      </p>
     </form>
   );
 }

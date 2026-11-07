@@ -88,7 +88,7 @@ export default async function ContactView() {
           />
         </Reveal>
         <div className="mt-[72px]">
-          <ContactForm page email={profile.email} text={copy} />
+          <ContactForm page source="Contact page" email={profile.email} text={copy} />
         </div>
       </section>
     </main>

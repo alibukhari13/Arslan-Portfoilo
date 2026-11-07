@@ -65,7 +65,7 @@ export default async function PricingView() {
           ))}
         </ul>
       </section>
-      <ContactBand />
+      <ContactBand source="Pricing" />
     </main>
   );
 }

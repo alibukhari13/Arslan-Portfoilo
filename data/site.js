@@ -498,11 +498,11 @@ export const legal = {
       },
       {
         heading: "What this site stores",
-        text: "The site is a static portfolio. It does not ask you to create an account. A basic host or analytics tool may record technical data such as browser type and pages visited. You can control cookies in your browser.",
+        text: "Messages sent through the contact form are saved in the studio admin so I can read them and reply. The site does not ask you to create an account. A basic host may record technical data such as browser type and pages visited.",
       },
       {
         heading: "How long it stays",
-        text: "Project emails stay in my inbox for as long as the conversation or the work is relevant. You can ask me to delete a message thread that is no longer needed.",
+        text: "Form messages stay in the studio admin, and email threads stay with me, for as long as the conversation or the work is relevant. You can ask me to delete a message that is no longer needed.",
       },
       {
         heading: "Sharing",
@@ -629,8 +629,8 @@ export const copy = {
   formMessagePlaceholder: "Tell me about the product",
   formMessagePagePlaceholder: "Enter your message here",
   formSend: "Send message",
-  formSentTitle: "Your email app should be open.",
-  formSentBody: "If it did not, write directly to",
+  formSentTitle: "Message received.",
+  formSentBody: "It is saved in the studio admin. Arslan will reply to the email you entered.",
   formMailSubject: "Project inquiry from",
   aboutLead: "Designing products,",
   aboutRest: "interfaces & digital experiences",

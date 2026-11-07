@@ -157,7 +157,7 @@ export default async function AboutView() {
         </div>
       </section>
 
-      <ContactBand />
+      <ContactBand source="About" />
     </main>
   );
 }
