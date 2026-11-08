@@ -1,7 +1,7 @@
-import ProjectsView from "@/components/views/ProjectsView";
+import Page from "@/components/pages/projects/Page";
 
 export const metadata = { title: "Projects" };
 
 export default function ProjectsPage() {
-  return <ProjectsView />;
+  return <Page />;
 }

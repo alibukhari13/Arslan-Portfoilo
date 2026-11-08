@@ -1,5 +1,6 @@
-import AdminPanel from "@/components/admin/AdminPanel";
+import AdminPanel, { AdminBoundary } from "@/components/admin/AdminPanel";
 import { isAdmin } from "@/lib/auth";
+import { loadAdminData } from "@/lib/adminLoad";
 
 export const metadata = {
   title: "Admin",
@@ -8,5 +9,16 @@ export const metadata = {
 
 export default async function AdminPage() {
   const authed = await isAdmin();
-  return <AdminPanel initialAuthed={authed} />;
+  let initialData = null;
+  let initialError = "";
+  if (authed) {
+    const result = await loadAdminData();
+    if (result?.ok) initialData = result.data;
+    else initialError = result?.error || "Could not load the database.";
+  }
+  return (
+    <AdminBoundary>
+      <AdminPanel initialAuthed={authed} initialData={initialData} initialError={initialError} />
+    </AdminBoundary>
+  );
 }

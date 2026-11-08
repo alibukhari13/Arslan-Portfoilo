@@ -1,5 +1,5 @@
 import localFont from "next/font/local";
-import { Jersey_20 } from "next/font/google";
+import { Inter, Jersey_20 } from "next/font/google";
 import SiteChrome from "@/components/layout/SiteChrome";
 import { getSite } from "@/lib/getSite";
 import "./globals.css";
@@ -15,6 +15,12 @@ const switzer = localFont({
   display: "swap",
 });
 
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
 const jersey = Jersey_20({
   subsets: ["latin"],
   weight: "400",
@@ -22,6 +28,24 @@ const jersey = Jersey_20({
   display: "swap",
   preload: true,
 });
+
+const bebas = localFont({
+  src: "../fonts/bebas-neue.woff2",
+  weight: "400",
+  variable: "--font-bebas",
+  display: "swap",
+});
+
+const display = localFont({
+  src: "../fonts/inter-display-600.woff2",
+  weight: "600",
+  variable: "--font-display",
+  display: "swap",
+});
+
+export const viewport = {
+  themeColor: "#F9452D",
+};
 
 export async function generateMetadata() {
   const { profile } = await getSite();
@@ -32,7 +56,7 @@ export async function generateMetadata() {
       template: `%s — ${profile.name}`,
     },
     description: profile.intro,
-    icons: { icon: "/favicon.svg" },
+    icons: { icon: "/favicon.svg", apple: "/favicon.svg" },
     openGraph: {
       title: `${profile.name} — ${profile.role}`,
       description: profile.intro,
@@ -44,38 +68,22 @@ export async function generateMetadata() {
 export default async function RootLayout({ children }) {
   const site = await getSite();
   return (
-    <html lang="en" className={`${switzer.variable} ${jersey.variable}`}>
-      <body className="min-h-svh bg-ink text-white antialiased">
+    <html lang="en" className={`${inter.variable} ${switzer.variable} ${jersey.variable} ${bebas.variable} ${display.variable}`}>
+      <body className="min-h-svh antialiased">
         <SiteChrome
           skip={site.copy.skipToContent}
           showNav={site.hidden?.["chrome-nav"] !== true}
           showFooter={site.hidden?.["chrome-footer"] !== true}
-          nav={site.nav}
-          cta={site.copy.navCta}
+          wordmark={site.profile.wordmark || site.profile.name}
           name={site.profile.name}
-          profile={{
-            email: site.profile.email,
-            name: site.profile.name,
-            location: site.profile.location,
-            role: site.profile.role,
-            socials: site.profile.socials,
-          }}
-          footerNav={site.footerNav}
-          resourceNav={site.resourceNav}
-          copy={{
-            newsletterTitle: site.copy.newsletterTitle,
-            footerEmail: site.copy.footerEmail,
-            footerPlaceholder: site.copy.footerPlaceholder,
-            footerSend: site.copy.footerSend,
-            footerMailSubject: site.copy.footerMailSubject,
-            footerMailBody: site.copy.footerMailBody,
-            footerNote: site.copy.footerNote,
-            footerNoteDone: site.copy.footerNoteDone,
-            footerPages: site.copy.footerPages,
-            footerResources: site.copy.footerResources,
-            footerFollow: site.copy.footerFollow,
-            footerRights: site.copy.footerRights,
-          }}
+          role={site.profile.role}
+          phone={site.profile.phone}
+          phoneHref={site.profile.phoneHref}
+          email={site.profile.email}
+          location={site.profile.location}
+          socials={site.profile.socials}
+          projectCount={site.projects.length}
+          copy={site.copy}
         >
           {children}
         </SiteChrome>

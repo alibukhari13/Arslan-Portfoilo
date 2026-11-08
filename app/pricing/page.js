@@ -1,4 +1,4 @@
-import PricingView from "@/components/views/PricingView";
+import PricingView from "@/components/studio/PricingView";
 
 export const metadata = { title: "Pricing" };
 

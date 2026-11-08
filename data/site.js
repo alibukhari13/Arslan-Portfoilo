@@ -5,6 +5,8 @@
  * Section layout lives in components/home and components/views.
  */
 
+import { liveDefaults } from "./livePages";
+
 export const profile = {
   name: "Arslan Sabir",
   wordmark: "ARSLAN",
@@ -592,6 +594,18 @@ export const copy = {
   projectSolutionTitle: "Our solution",
   projectImpactTitle: "Project impact",
   projectMoreTitle: "More projects",
+  caseDate: "DATE",
+  caseTools: "TOOLS",
+  caseType: "PRODUCT TYPE",
+  caseDuration: "PROJECT DURATION",
+  caseContext: "context",
+  caseChallenge: "challenge",
+  caseProblem: "problem",
+  caseSolution: "solution",
+  caseApproach: "design approach",
+  caseFeatures: "key features",
+  caseConclusion: "conclusion",
+  caseMore: "More projects",
   metaClient: "Client",
   metaCategory: "Category",
   metaYear: "Year",
@@ -631,6 +645,8 @@ export const copy = {
   formSend: "Send message",
   formSentTitle: "Your message is sent.",
   formSentBody: "Thank you for writing. Arslan will reply soon.",
+  projectFormTitle: "Let’s bring your vision to life",
+  projectFormButton: "Get in touch",
   formMailSubject: "Project inquiry from",
   aboutLead: "Designing products,",
   aboutRest: "interfaces & digital experiences",
@@ -669,4 +685,5 @@ export const copy = {
   notFoundTitle: "This page is not in the file",
   notFoundButton: "Back home",
   certificates,
+  pages: liveDefaults,
 };

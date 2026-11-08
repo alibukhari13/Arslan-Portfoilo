@@ -1,0 +1,13 @@
+root	HeaderDesktop	HeaderDesktop
+main	HeroSection	Hero section
+main	Numbers	Numbers
+main	QuoteSection	Quote Section
+main	Process	Process
+main	Photo	Photo
+main	Container	Container
+main	Services	Services
+main	Images	Images
+main	Text	Text
+main	LetSBringYourVisionToLife	LetSBringYourVisionToLife
+root	Section	Section
+after	FooterDesktop	FooterDesktop

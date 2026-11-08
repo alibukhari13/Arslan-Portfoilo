@@ -1,4 +1,4 @@
-import ServicesView from "@/components/views/ServicesView";
+import ServicesView from "@/components/studio/ServicesView";
 
 export const metadata = { title: "Services" };
 

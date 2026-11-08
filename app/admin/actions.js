@@ -4,8 +4,9 @@ import { revalidatePath, updateTag } from "next/cache";
 import { adminPages } from "@/components/admin/pages";
 import { connection } from "next/server";
 import { isAdmin } from "@/lib/auth";
+import { loadAdminData } from "@/lib/adminLoad";
 import { clearSiteCache } from "@/lib/getSite";
-import { lists, singles, tables } from "@/lib/collections";
+import { lists, singles } from "@/lib/collections";
 import { serviceClient } from "@/lib/supabase";
 
 const specs = new Map([...singles, ...lists].map((item) => [item.table, item]));
@@ -40,14 +41,16 @@ function clean(table, record) {
   const spec = specs.get(table);
   const row = {};
   for (const field of spec.fields) {
+    if (field.store === "story") continue;
     let value = record[field.key];
     if (field.type === "lines") {
       const source = Array.isArray(value) ? value : String(value || "").split("\n");
       value = source.map((item) => String(item).trim()).filter(Boolean);
-    } else if (field.type === "shots") {
+    } else if (field.type === "shots" || field.type === "images") {
       const source = Array.isArray(value) ? value : [];
-      const shots = [0, 1, 2].map((index) => String(source[index] || "").trim());
-      value = shots.every((item) => !item) ? [] : shots;
+      const shots = source.map((item) => String(item || "").trim()).filter(Boolean);
+      value = field.type === "images" ? shots.slice(0, 5) : [0, 1, 2].map((index) => String(source[index] || "").trim());
+      if (field.type === "shots" && value.every((item) => !item)) value = [];
     } else if (field.type === "number") {
       value = Number(value) || 0;
     } else if (field.type === "bool") {
@@ -70,27 +73,29 @@ function clean(table, record) {
 }
 
 export async function loadAdmin() {
-  const access = await gate();
-  if (!access.ok) return access;
-  const names = tables;
-  const results = await Promise.all(
-    names.map((name) => {
-      const query = access.client.from(name).select("*");
-      if (name === "profile" || name === "site_copy") return query;
-      if (name === "messages") return query.order("created_at", { ascending: false });
-      return query.order("sort", { ascending: true });
-    }),
-  );
-  const failed = results.find((result) => result.error);
-  if (failed) return { ok: false, error: failed.error.message };
-  const data = {};
-  names.forEach((name, index) => {
-    const rows = results[index].data || [];
-    if (name === "profile") data.profile = rows.find((row) => row.id === 1) || rows[0] || null;
-    else if (name === "site_copy") data.site_copy = (rows.find((row) => row.id === 1) || rows[0] || { id: 1, data: {} }).data || {};
-    else data[name] = rows;
-  });
-  return { ok: true, data };
+  return loadAdminData();
+}
+
+function storyFrom(table, record) {
+  const spec = specs.get(table);
+  const story = {};
+  for (const field of spec.fields) {
+    if (field.store !== "story") continue;
+    story[field.key] = String(record?.[field.key] || "").trim();
+  }
+  return story;
+}
+
+async function writeProjectStory(client, id, story) {
+  const existing = await client.from("site_copy").select("data").eq("id", 1).maybeSingle();
+  if (existing.error) return existing.error.message;
+  const data = { ...(existing.data?.data || {}) };
+  const details = { ...(data.projectDetails || {}) };
+  if (story) details[String(id)] = story;
+  else delete details[String(id)];
+  data.projectDetails = details;
+  const saved = await client.from("site_copy").upsert({ id: 1, data });
+  return saved.error ? saved.error.message : "";
 }
 
 export async function saveRecord(table, record) {
@@ -98,12 +103,19 @@ export async function saveRecord(table, record) {
   const access = await gate();
   if (!access.client) return access.ok ? denied() : access;
   const row = clean(table, record || {});
-  const id = record?.id;
-  const query = id
-    ? access.client.from(table).update(row).eq("id", id)
-    : access.client.from(table).insert(row);
-  const { error } = await query;
-  if (error) return { ok: false, error: error.message };
+  let id = record?.id;
+  if (id) {
+    const { error } = await access.client.from(table).update(row).eq("id", id);
+    if (error) return { ok: false, error: error.message };
+  } else {
+    const inserted = await access.client.from(table).insert(row).select("id").single();
+    if (inserted.error) return { ok: false, error: inserted.error.message };
+    id = inserted.data?.id;
+  }
+  if (table === "projects" && id) {
+    const storyError = await writeProjectStory(access.client, id, storyFrom(table, record));
+    if (storyError) return { ok: false, error: storyError };
+  }
   publish();
   return { ok: true };
 }
@@ -175,6 +187,10 @@ export async function removeRecord(table, id) {
   if (!access.client) return access.ok ? denied() : access;
   const { error } = await access.client.from(table).delete().eq("id", id);
   if (error) return { ok: false, error: error.message };
+  if (table === "projects" && id) {
+    const storyError = await writeProjectStory(access.client, id, null);
+    if (storyError) return { ok: false, error: storyError };
+  }
   publish();
   return { ok: true };
 }

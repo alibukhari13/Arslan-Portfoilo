@@ -1,12 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Component, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { copy as copyDefaults } from "@/data/site";
+import { mergeLive } from "@/data/livePages";
 import { lists, singles } from "@/lib/collections";
-import { deleteMessage, loadAdmin, removeRecord, reorderRecords, saveCopy, saveProfile, saveRecord, setMessageRead, setSectionHidden } from "@/app/admin/actions";
+import { deleteMessage, removeRecord, reorderRecords, saveCopy, saveProfile, saveRecord, setMessageRead, setSectionHidden } from "@/app/admin/actions";
 import { Mark } from "@/components/ui/Icons";
+import { LiveEditor } from "@/components/admin/LiveEditor";
+import { CursorTrailEditor } from "@/components/admin/CursorTrailEditor";
+import { MediaEditor } from "@/components/admin/MediaEditor";
 import { adminPages } from "@/components/admin/pages";
+import { liveMedia } from "@/data/liveMedia";
 
 const listSpecs = Object.fromEntries(lists.map((item) => [item.id, { ...item, kind: "list" }]));
 const profileFieldMap = Object.fromEntries(singles[0].fields.map((field) => [field.key, field]));
@@ -32,6 +37,18 @@ const copyLabels = {
   projectSolutionTitle: "Solution heading",
   projectImpactTitle: "Project impact heading",
   projectMoreTitle: "More projects heading",
+  caseDate: "Date label",
+  caseTools: "Tools label",
+  caseType: "Product type label",
+  caseDuration: "Project duration label",
+  caseContext: "Context label",
+  caseChallenge: "Challenge label",
+  caseProblem: "Problem label",
+  caseSolution: "Solution label",
+  caseApproach: "Design approach label",
+  caseFeatures: "Key features label",
+  caseConclusion: "Conclusion label",
+  caseMore: "More projects label",
   metaClient: "Client label",
   metaCategory: "Category label",
   metaYear: "Year label",
@@ -59,16 +76,18 @@ const copyLabels = {
   contactLocationLabel: "Location label",
   contactHoursLabel: "Hours label",
   contactStart: "Start a conversation button",
-  formName: "Form name label",
-  formEmail: "Form email label",
+  projectFormTitle: "Heading",
+  projectFormButton: "Button",
+  formName: "Name box",
+  formEmail: "Email box",
   formMessage: "Form message label",
   formNamePlaceholder: "Name placeholder",
   formEmailPlaceholder: "Email placeholder",
   formMessagePlaceholder: "Home message placeholder",
-  formMessagePagePlaceholder: "Contact page message placeholder",
+  formMessagePagePlaceholder: "Message box",
   formSend: "Send button",
-  formSentTitle: "Sent title",
-  formSentBody: "Sent note",
+  formSentTitle: "Heading after the message sends",
+  formSentBody: "Note after the message sends",
   formMailSubject: "Inquiry email subject",
   aboutLead: "About heading",
   aboutRest: "About heading, muted part",
@@ -122,7 +141,7 @@ const iconBtn = "grid h-8 w-8 place-items-center border border-white/12 text-sm 
 function blank(spec) {
   const row = { id: null, sort: 0 };
   spec.fields.forEach((field) => {
-    if (field.type === "lines" || field.type === "shots") row[field.key] = field.type === "shots" ? ["", "", ""] : [];
+    if (field.type === "lines" || field.type === "shots" || field.type === "images") row[field.key] = field.type === "shots" ? ["", "", ""] : [];
     else if (field.type === "sections") row[field.key] = [{ heading: "", text: "" }];
     else if (field.type === "bool") row[field.key] = false;
     else if (field.type === "number") row[field.key] = 0;
@@ -138,7 +157,7 @@ function copyIsLong(name) {
 }
 
 function fieldWide(field) {
-  return ["textarea", "lines", "shots", "sections", "image"].includes(field.type);
+  return ["textarea", "lines", "shots", "images", "sections", "image"].includes(field.type);
 }
 
 function ImagePreview({ src }) {
@@ -180,6 +199,43 @@ function FieldInput({ field, value, onChange }) {
             />
           </label>
         ))}
+      </div>
+    );
+  }
+  if (field.type === "images") {
+    const shots = (Array.isArray(value) ? value : []).map((item) => String(item || ""));
+    return (
+      <div className="grid gap-3">
+        {shots.map((shot, index) => (
+          <div key={`${field.key}-${index}`} className="grid gap-2">
+            <div className="flex items-center justify-between gap-3">
+              <span className={labelClass}>Photo {index + 1}</span>
+              <button
+                type="button"
+                className={quietBtn}
+                onClick={() => onChange(shots.filter((_, itemIndex) => itemIndex !== index))}
+              >
+                Remove
+              </button>
+            </div>
+            <input
+              className={inputClass}
+              placeholder="https://..."
+              value={shot}
+              onChange={(event) => {
+                const next = [...shots];
+                next[index] = event.target.value;
+                onChange(next);
+              }}
+            />
+            <ImagePreview src={shot} />
+          </div>
+        ))}
+        {shots.length < 5 ? (
+          <button type="button" className={`${quietBtn} h-11 w-full border-dashed`} onClick={() => onChange([...shots, ""])}>
+            Add photo
+          </button>
+        ) : null}
       </div>
     );
   }
@@ -357,6 +413,12 @@ function profileSpec(keys = []) {
   return { fields: keys.map((key) => profileFieldMap[key]).filter(Boolean) };
 }
 
+function withLivePages(saved) {
+  const next = { ...copyDefaults, ...(saved || {}) };
+  next.pages = mergeLive(next.pages);
+  return next;
+}
+
 function listKey(list) {
   return `${list.id}:${list.group || "all"}`;
 }
@@ -453,38 +515,73 @@ function RecordList({ list, rows, query, onQuery, adding, onAdding, drafts, setD
   );
 }
 
-export default function AdminPanel({ initialAuthed }) {
+export class AdminBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { error };
+  }
+
+  componentDidCatch(error) {
+    try {
+      sessionStorage.setItem("admincrash", error?.stack || error?.message || String(error));
+    } catch {}
+  }
+
+  render() {
+    if (this.state.error) {
+      const error = this.state.error;
+      return (
+        <main className="admin-ui min-h-svh bg-ink px-6 py-10 text-white">
+          <h1 className="text-2xl">Admin could not open this section.</h1>
+          <pre className="mt-4 max-w-3xl whitespace-pre-wrap text-sm leading-6 text-red-200">{error.stack || error.message}</pre>
+        </main>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+export default function AdminPanel({ initialAuthed, initialData = null, initialError = "" }) {
   const [authed, setAuthed] = useState(initialAuthed);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [tab, setTab] = useState("home-hero");
   const [menu, setMenu] = useState("home");
-  const [data, setData] = useState(null);
-  const [profile, setProfile] = useState(null);
-  const [copy, setCopy] = useState(copyDefaults);
+  const [data, setData] = useState(initialData);
+  const [profile, setProfile] = useState(initialData?.profile || null);
+  const [copy, setCopy] = useState(() => withLivePages(initialData?.site_copy));
   const [drafts, setDrafts] = useState({});
   const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
+  const [error, setError] = useState(initialError);
   const [busy, setBusy] = useState(false);
   const [hiding, setHiding] = useState(false);
   const [queries, setQueries] = useState({});
   const [adding, setAdding] = useState("");
 
   async function refresh() {
-    const result = await loadAdmin();
-    if (!result.ok) {
-      setError(result.error || "Could not load the database.");
-      if (result.error === "Sign in again.") setAuthed(false);
-      return;
+    try {
+      const response = await fetch("/api/admin/load", { cache: "no-store" });
+      const result = await response.json();
+      if (!response.ok || !result?.ok) {
+        setError(result?.error || "Could not load the database.");
+        if (result?.error === "Sign in again.") setAuthed(false);
+        return;
+      }
+      setData(result.data);
+      setProfile(result.data.profile || {});
+      setCopy(withLivePages(result.data.site_copy));
+      setError("");
+    } catch (error) {
+      setError(error?.message || "Could not load the database.");
     }
-    setData(result.data);
-    setProfile(result.data.profile || {});
-    setCopy({ ...copyDefaults, ...(result.data.site_copy || {}) });
-    setError("");
   }
 
   useEffect(() => {
-    if (authed) refresh();
+    if (authed && !data) refresh();
   }, [authed]);
 
   useEffect(() => {
@@ -596,8 +693,14 @@ export default function AdminPanel({ initialAuthed }) {
     if (!data) return null;
     if (section.inbox) return (data.messages || []).filter((item) => !item.read).length;
     if (section.certs) return Array.isArray(copy.certificates) ? copy.certificates.length : 0;
+    if (section.mediaPage) return liveMedia.filter((item) => item.pages.includes(section.mediaPage)).length;
+    if (section.livePage && section.list) {
+      const rows = copy.pages?.[section.livePage]?.[section.list.key];
+      return Array.isArray(rows) ? rows.length : 0;
+    }
     if (section.lists?.length !== 1) return null;
     const spec = listSpecs[section.lists[0].id];
+    if (!spec) return null;
     const rows = data[spec.table] || [];
     return section.lists[0].group ? rows.filter((row) => row.group_name === section.lists[0].group).length : rows.length;
   }
@@ -616,7 +719,7 @@ export default function AdminPanel({ initialAuthed }) {
         const saved = await saveProfile(profile);
         if (!saved.ok) return saved;
       }
-      if (current.copyKeys?.length || current.certs) {
+      if (current.copyKeys?.length || current.certs || current.livePage || current.mediaPage) {
         const next = current.certs ? { ...copy, certificates: cleanCertificates(copy.certificates) } : copy;
         const saved = await saveCopy(next);
         if (!saved.ok) return saved;
@@ -625,7 +728,7 @@ export default function AdminPanel({ initialAuthed }) {
     }, "Saved.");
   }
 
-  const hasText = Boolean(current.profileKeys?.length || current.copyKeys?.length || current.legalSlug || current.certs);
+  const hasText = Boolean(current.profileKeys?.length || current.copyKeys?.length || current.legalSlug || current.certs || current.livePage || current.mediaPage);
   const legalExisting = (data?.legal_pages || []).find((row) => row.slug === current.legalSlug);
   const legalDraft = current.legalSlug
     ? drafts[`legal:${current.legalSlug}`] || legalExisting || { slug: current.legalSlug, title: "", updated_label: "", lede: "", sections: [{ heading: "", text: "" }] }
@@ -699,7 +802,7 @@ export default function AdminPanel({ initialAuthed }) {
                     {page.sections.map((section, index) => {
                       const active = tab === section.id;
                       const itemCount = sectionCount(section);
-                      const off = sectionHidden(section.id);
+                      const off = section.canHide && sectionHidden(section.id);
                       return (
                         <button
                           key={section.id}
@@ -727,7 +830,7 @@ export default function AdminPanel({ initialAuthed }) {
       </aside>
 
       <section className="min-w-0 flex-1">
-        <div className="sticky top-0 z-30 border-b border-white/10 bg-[#0e0e0e]/95 backdrop-blur lg:hidden">
+        <div className="admin-mobile-bar sticky top-0 z-30 border-b border-white/10 bg-[#0e0e0e]/95 backdrop-blur lg:hidden">
           <div className="flex items-center justify-between px-5 py-3">
             <p className="text-[11px] uppercase tracking-[0.18em] text-lime">Admin</p>
             <div className="flex items-center gap-4">
@@ -756,7 +859,7 @@ export default function AdminPanel({ initialAuthed }) {
               <span className={labelClass}>Section</span>
               <select id="admin-section" className={inputClass} value={tab} onChange={(event) => setTab(event.target.value)}>
                 {current.page.sections.map((section, index) => (
-                  <option key={section.id} value={section.id}>{String(index + 1).padStart(2, "0")} {section.label}{sectionHidden(section.id) ? " · Hidden" : ""}</option>
+                  <option key={section.id} value={section.id}>{String(index + 1).padStart(2, "0")} {section.label}{section.canHide && sectionHidden(section.id) ? " · Hidden" : ""}</option>
                 ))}
               </select>
             </label>
@@ -775,7 +878,7 @@ export default function AdminPanel({ initialAuthed }) {
             </span>
           </div>
 
-          {data && !current.inbox ? (
+          {data && current.canHide ? (
             <div className="mt-6 flex items-center justify-between gap-4 border border-white/10 bg-panel px-5 py-4">
               <div>
                 <p className="text-sm font-medium">{sectionHidden(current.id) ? "Hidden on the website" : "Visible on the website"}</p>
@@ -790,9 +893,9 @@ export default function AdminPanel({ initialAuthed }) {
                 aria-label={sectionHidden(current.id) ? `Show ${current.label}` : `Hide ${current.label}`}
                 disabled={busy || hiding}
                 onClick={() => toggleHidden(current.id, !sectionHidden(current.id))}
-                className={`relative h-7 w-12 shrink-0 ${sectionHidden(current.id) ? "bg-white/15" : "bg-lime"}`}
+                className={`admin-switch relative h-7 w-12 shrink-0 ${sectionHidden(current.id) ? "is-off" : "is-on"}`}
               >
-                <span className={`absolute top-1 h-5 w-5 bg-ink ${sectionHidden(current.id) ? "left-1" : "left-6"}`} />
+                <span className={`admin-knob absolute top-1 h-5 w-5 ${sectionHidden(current.id) ? "left-1" : "left-6"}`} />
               </button>
             </div>
           ) : null}
@@ -845,6 +948,9 @@ export default function AdminPanel({ initialAuthed }) {
                 </section>
               ) : null}
               {current.certs ? <CertificatesEditor items={copy.certificates} onChange={(certificates) => setCopy({ ...copy, certificates })} /> : null}
+              {current.cursorTrail ? <CursorTrailEditor items={Array.isArray(copy.heroCursor) ? copy.heroCursor : null} onChange={(heroCursor) => setCopy({ ...copy, heroCursor })} /> : null}
+              {current.livePage ? <LiveEditor section={current} pages={copy.pages || {}} onChange={(pages) => setCopy({ ...copy, pages })} /> : null}
+              {current.mediaPage ? <MediaEditor page={current.mediaPage} media={copy.media || {}} onChange={(media) => setCopy({ ...copy, media })} /> : null}
               <SaveBar busy={busy} sticky={!current.lists?.length} label="Save this section" />
             </form>
           ) : null}
