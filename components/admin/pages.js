@@ -80,15 +80,16 @@ export const adminPages = [
       {
         id: "home-statement",
         label: "Designer line",
-        updates: "Website → Home page → the line beside the portrait. The long sentence, the role under the name, and the Download Resume button. Saving this section updates that part of the Home page.",
+        updates: "Website → Home page → the line beside the portrait, and the large line “UI UX DESIGNER HELPING STARTUPS AND PRODUCT TEAMS…”. The signature inside that large line is the image link below. Saving this section updates that part of the Home page.",
         livePage: "home",
+        mediaIds: ["home-signature"],
         fields: [
           { key: "bio", label: "Letter line", long: true, hint: "Home page, the line that reads I’m Arslan Sabir… based in Lahore. It sits by the portrait." },
           { key: "statement", label: "Sentence beside the portrait", long: true, hint: "Home page, beside the portrait." },
           { key: "statementRole", label: "Role under the name", hint: "Home page, the short role under the name." },
           { key: "statementRoleLong", label: "Longer role line", hint: "Home page, the longer role line in that same block." },
           { key: "resumeButton", label: "Resume button", hint: "Home page, the Download Resume button." },
-          { key: "designerHeading", label: "Large heading", long: true, hint: "Home page, the large line under the portrait. It is set one word at a time. Editing it updates that whole line." },
+          { key: "designerHeading", label: "Large heading", long: true, hint: "Home page, the large line: UI UX DESIGNER HELPING STARTUPS AND PRODUCT TEAMS DESIGN CLEAR, USABLE, AND SCALABLE DIGITAL INTERFACES. Editing it updates that whole line. The signature inside the line is the image link below." },
         ],
       },
       {

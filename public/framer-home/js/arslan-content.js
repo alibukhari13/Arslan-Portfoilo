@@ -796,11 +796,12 @@
         if (el.closest && el.closest("[data-arslan-card], #arslan-certificates")) return;
         var marked = el.getAttribute("data-arslan-media");
         if (marked && marked !== item.id) return;
-        var src = el.getAttribute("src") || "";
-        if (!marked && src.toLowerCase().indexOf(match) === -1) return;
+        var hay = ((el.getAttribute("src") || "") + " " + (el.getAttribute("srcset") || "")).toLowerCase();
+        var signature = item.id === "home-signature" && hay.indexOf("signature-arslan.png") !== -1;
+        if (!marked && hay.indexOf(match) === -1 && !signature) return;
         el.setAttribute("data-arslan-media", item.id);
         if (item.alt && el.tagName === "IMG") el.setAttribute("alt", item.alt);
-        if (sameFile(src, next)) return;
+        if (sameFile(el.getAttribute("src") || "", next)) return;
         el.removeAttribute("srcset");
         el.removeAttribute("sizes");
         el.setAttribute("src", next);

@@ -15,8 +15,10 @@ function groupsFor(page) {
   return groups;
 }
 
-export function MediaEditor({ page, media, onChange }) {
-  const groups = groupsFor(page);
+export function MediaEditor({ page, media, onChange, ids }) {
+  const groups = groupsFor(page)
+    .map((group) => ({ ...group, items: ids ? group.items.filter((item) => ids.includes(item.id)) : group.items }))
+    .filter((group) => group.items.length);
 
   function update(id, value) {
     onChange({ ...media, [id]: value });
@@ -24,9 +26,11 @@ export function MediaEditor({ page, media, onChange }) {
 
   return (
     <div className="space-y-4">
-      <p className="text-sm leading-6 text-white/55">
-        Paste a link. Nothing is uploaded. The heading is the section on the website, and the sentence under each name says exactly where that photo or video updates. The same link updates every copy, including a photo that shows on hover or when the pointer moves.
-      </p>
+      {ids ? null : (
+        <p className="text-sm leading-6 text-white/55">
+          Paste a link. Nothing is uploaded. The heading is the section on the website, and the sentence under each name says exactly where that photo or video updates. The same link updates every copy, including a photo that shows on hover or when the pointer moves.
+        </p>
+      )}
       {groups.map((group) => (
         <section key={group.name} className="border border-white/10 bg-panel">
           <header className="border-b border-white/10 px-5 py-4">

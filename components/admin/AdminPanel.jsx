@@ -950,6 +950,7 @@ export default function AdminPanel({ initialAuthed, initialData = null, initialE
               {current.certs ? <CertificatesEditor items={copy.certificates} onChange={(certificates) => setCopy({ ...copy, certificates })} /> : null}
               {current.cursorTrail ? <CursorTrailEditor items={Array.isArray(copy.heroCursor) ? copy.heroCursor : null} onChange={(heroCursor) => setCopy({ ...copy, heroCursor })} /> : null}
               {current.livePage ? <LiveEditor section={current} pages={copy.pages || {}} onChange={(pages) => setCopy({ ...copy, pages })} /> : null}
+              {current.mediaIds?.length ? <MediaEditor page="home" ids={current.mediaIds} media={copy.media || {}} onChange={(media) => setCopy({ ...copy, media })} /> : null}
               {current.mediaPage ? <MediaEditor page={current.mediaPage} media={copy.media || {}} onChange={(media) => setCopy({ ...copy, media })} /> : null}
               <SaveBar busy={busy} sticky={!current.lists?.length} label="Save this section" />
             </form>
