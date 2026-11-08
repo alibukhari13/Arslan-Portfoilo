@@ -212,41 +212,12 @@ export const adminPages = [
         },
       },
       {
-        id: "home-stories",
-        label: "Stories",
-        updates: "Website → Home page → Success stories. Add, edit, reorder, or delete a story and the quotes update. The numbers under the stories (+32%, +59%, and the rest) are the second list.",
-        livePage: "home",
-        fields: [
-          { key: "storiesTitle", label: "Heading", hint: "Home → Success stories." },
-          { key: "storiesText", label: "Intro", long: true, hint: "Home → Success stories, the sentence under the heading." },
-        ],
-        list: {
-          key: "stories",
-          titleKey: "name",
-          empty: "New story",
-          addLabel: "Add story",
-          blank: { quote: "", name: "", role: "" },
-          fields: [
-            { key: "quote", label: "Quote", long: true },
-            { key: "name", label: "Name" },
-            { key: "role", label: "Role" },
-          ],
-        },
-        moreLists: [
-          {
-            key: "storyStats",
-            titleKey: "value",
-            empty: "Number",
-            allowAdd: false,
-            allowMove: false,
-            heading: "Numbers on the story cards",
-            note: "Website → Home → Success stories. Each row is the big figure and the label under it. Edit a figure and that figure changes. Delete a row and that figure comes off the card.",
-            fields: [
-              { key: "value", label: "Figure", hint: "The percentage on that story card." },
-              { key: "label", label: "Label", hint: "The words under that percentage." },
-            ],
-          },
-        ],
+        id: "home-certificates",
+        label: "Certificates",
+        canHide: true,
+        updates: "Home page, in the place of Success stories. The heading is Certificates & credentials. Add, edit, delete, or reorder a certificate. The image and the open link are URLs.",
+        copyKeys: ["certificatesLead", "certificatesRest"],
+        certs: true,
       },
       {
         id: "home-faq",
@@ -269,14 +240,6 @@ export const adminPages = [
             { key: "answer", label: "Answer", long: true },
           ],
         },
-      },
-      {
-        id: "home-certificates",
-        label: "Certificates",
-        canHide: true,
-        updates: "Home page, after the FAQ. Add, edit, delete, or reorder a certificate. The image and the open link are URLs, so a new photo is pasted in as a link.",
-        copyKeys: ["certificatesLead", "certificatesRest"],
-        certs: true,
       },
       {
         id: "home-contact",

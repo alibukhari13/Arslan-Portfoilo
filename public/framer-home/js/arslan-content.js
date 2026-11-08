@@ -135,46 +135,51 @@
     if (section) section.style.display = hidden ? "none" : "";
   }
 
+  function storiesSection() {
+    return document.querySelector("section.framer-a91qzl, section[data-framer-name='Testimonials']");
+  }
+
+  function hideStories() {
+    var stories = storiesSection();
+    if (stories) stories.style.setProperty("display", "none", "important");
+  }
+
   function certificates(info) {
+    hideStories();
+    var stories = storiesSection();
     var current = document.getElementById("arslan-certificates");
     if (location.pathname !== "/" || !info.showCertificates || !info.certificates.length) {
       if (current) current.remove();
       return;
     }
-    var signature = "v2|" + info.certificates.map(function (item) { return item.image + item.title + item.issuer; }).join("|");
-    if (current && current.getAttribute("data-signature") === signature) {
+    var signature = "v3|" + (info.certificatesLead || "") + "|" + (info.certificatesRest || "") + "|" + info.certificates.map(function (item) { return item.image + item.title + item.issuer; }).join("|");
+    var inPlace = !stories || (current && current.nextElementSibling === stories);
+    if (current && current.getAttribute("data-signature") === signature && inPlace) {
       var existingGrid = current.querySelector(".certs");
-      if (existingGrid) existingGrid.style.gridTemplateColumns = window.innerWidth < 900 ? "1fr" : "repeat(2, minmax(0, 1fr))";
+      if (existingGrid) existingGrid.style.gridTemplateColumns = window.innerWidth < 810 ? "1fr" : "repeat(2, minmax(0, 1fr))";
       return;
     }
     if (current) current.remove();
-    if (!document.getElementById("arslan-cert-style")) {
-      var style = document.createElement("style");
+    var css = "#arslan-certificates{box-sizing:border-box;display:flex;flex-direction:column;align-items:center;width:100%;padding:160px 36px 0;background:#fff;color:#0c0c0c}#arslan-certificates .wrap{width:100%;max-width:1368px}#arslan-certificates h2{margin:0;max-width:16em;font-family:Inter,sans-serif;font-weight:600;font-size:46px;line-height:1.1;letter-spacing:-.07em}#arslan-certificates h2 span{display:block;color:rgba(11,11,12,.45)}#arslan-certificates .certs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;width:100%;margin-top:48px}#arslan-certificates a,#arslan-certificates article{display:flex;flex-direction:column;color:inherit;text-decoration:none}#arslan-certificates .frame{display:flex;align-items:center;justify-content:center;background:#f3f3f3;aspect-ratio:16/11;padding:28px}#arslan-certificates img{display:block;width:100%;height:100%;object-fit:contain}#arslan-certificates h3{margin:18px 0 0;font-family:Inter,sans-serif;font-size:22px;font-weight:600;line-height:1.3;letter-spacing:-.04em}#arslan-certificates .issuer{margin:8px 0 0;font-family:Inter,sans-serif;font-size:16px;font-weight:500;line-height:1.4;letter-spacing:-.04em;color:rgba(12,12,12,.6)}#arslan-certificates .pill{align-self:flex-start;margin-top:16px;border:1px solid rgba(11,11,12,.16);border-radius:50px;padding:7px 14px;font-family:Inter,sans-serif;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}@media(max-width:1199px){#arslan-certificates{padding:130px 32px 0}#arslan-certificates h2{font-size:40px}}@media(max-width:809px){#arslan-certificates{padding:60px 16px 0}#arslan-certificates h2{font-size:28px}#arslan-certificates .certs{grid-template-columns:1fr}}";
+    var style = document.getElementById("arslan-cert-style");
+    if (!style) {
+      style = document.createElement("style");
       style.id = "arslan-cert-style";
-      style.textContent = "#arslan-certificates{box-sizing:border-box;width:100%;padding:88px 36px 72px;background:#fff;color:#0c0c0c}#arslan-certificates h2{margin:0;max-width:1368px;font-family:Inter,sans-serif;font-weight:600;font-size:clamp(56px,7.8vw,112px);line-height:.96;letter-spacing:-.07em}#arslan-certificates h2 span{display:block;color:rgba(11,11,12,.45)}#arslan-certificates .certs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;max-width:1368px;margin-top:36px}#arslan-certificates a,#arslan-certificates article{display:flex;flex-direction:column;color:inherit;text-decoration:none}#arslan-certificates .frame{display:flex;align-items:center;justify-content:center;background:#f3f3f3;aspect-ratio:16/11;padding:28px}#arslan-certificates img{display:block;width:100%;height:100%;object-fit:contain}#arslan-certificates h3{margin:18px 0 0;font-family:Inter,sans-serif;font-size:26px;font-weight:600;line-height:1.3;letter-spacing:-.04em}#arslan-certificates .issuer{margin:8px 0 0;font-family:Inter,sans-serif;font-size:18px;font-weight:500;line-height:1.4;letter-spacing:-.04em;color:rgba(12,12,12,.6)}#arslan-certificates .pill{align-self:flex-start;margin-top:16px;border:1px solid rgba(11,11,12,.16);border-radius:50px;padding:7px 14px;font-family:Inter,sans-serif;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}@media(max-width:900px){#arslan-certificates{padding:56px 20px 40px}#arslan-certificates .certs{grid-template-columns:1fr}}";
       document.head.appendChild(style);
     }
-
-    var heading = Array.prototype.find.call(document.querySelectorAll("h2"), function (node) {
-      return /bring your vision/i.test(node.textContent || "");
-    });
-    if (!heading) return;
-    var mount = heading;
-    while (mount.parentElement && mount.parentElement !== document.body) {
-      var parent = mount.parentElement;
-      if (parent.getBoundingClientRect().height > 2200 && parent.querySelectorAll("h2").length > 1) break;
-      mount = parent;
-    }
+    if (style.textContent !== css) style.textContent = css;
 
     var section = document.createElement("section");
     section.id = "arslan-certificates";
     section.setAttribute("data-signature", signature);
+    var wrap = document.createElement("div");
+    wrap.className = "wrap";
     var title = document.createElement("h2");
     title.appendChild(document.createTextNode(info.certificatesLead || "Certificates"));
     var muted = document.createElement("span");
     muted.textContent = info.certificatesRest || "& credentials";
     title.appendChild(muted);
-    section.appendChild(title);
+    wrap.appendChild(title);
 
     var grid = document.createElement("div");
     grid.className = "certs";
@@ -209,8 +214,22 @@
       if (pill.textContent) card.appendChild(pill);
       grid.appendChild(card);
     });
-    section.appendChild(grid);
-    mount.parentElement.insertBefore(section, mount);
+    wrap.appendChild(grid);
+    section.appendChild(wrap);
+    if (stories && stories.parentElement) stories.parentElement.insertBefore(section, stories);
+    else {
+      var heading = Array.prototype.find.call(document.querySelectorAll("h2"), function (node) {
+        return /bring your vision/i.test(node.textContent || "");
+      });
+      if (!heading) return;
+      var mount = heading;
+      while (mount.parentElement && mount.parentElement !== document.body) {
+        var parent = mount.parentElement;
+        if (parent.getBoundingClientRect().height > 2200 && parent.querySelectorAll("h2").length > 1) break;
+        mount = parent;
+      }
+      if (mount.parentElement) mount.parentElement.insertBefore(section, mount);
+    }
   }
 
   function leaves(root) {
@@ -1122,10 +1141,10 @@
         } else if (location.pathname === "/") {
           hideSelected(!data.showHomeProjects);
           if (data.showHomeProjects) showFeatured(projects);
-          certificates(data);
         }
         updateCount(projects.length);
       }
+      if (location.pathname === "/") certificates(data);
       applyPages();
       applyMedia();
       applyCursor();
