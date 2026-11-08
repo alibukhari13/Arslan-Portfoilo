@@ -1135,10 +1135,76 @@
     }
   }
 
+  function capSrcset(value) {
+    var parts = String(value || "").split(",").map(function (part) { return part.trim(); }).filter(Boolean);
+    var parsed = parts.map(function (part) {
+      var match = part.match(/(\d+)w\s*$/);
+      return { part: part, width: match ? Number(match[1]) : 0 };
+    });
+    var kept = parsed.filter(function (item) { return item.width && item.width <= 1600; });
+    if (!kept.length && parsed.length) {
+      parsed.sort(function (a, b) { return (a.width || 99999) - (b.width || 99999); });
+      kept = [parsed[0]];
+    }
+    return kept;
+  }
+
+  function tightenImages() {
+    Array.prototype.forEach.call(document.querySelectorAll("img"), function (img) {
+      var raw = img.getAttribute("srcset");
+      if (raw) {
+        var kept = capSrcset(raw);
+        if (kept.length) {
+          var paths = kept.map(function (item) { return item.part.split(/\s+/)[0].split("?")[0]; });
+          var local = paths[0].charAt(0) === "/" || paths[0].indexOf("images/") === 0;
+          if (local && paths.every(function (path) { return path === paths[0]; })) {
+            if (img.getAttribute("src") !== paths[0]) img.setAttribute("src", paths[0]);
+            img.removeAttribute("srcset");
+            img.removeAttribute("sizes");
+          } else {
+            var next = kept.map(function (item) { return item.part; }).join(", ");
+            if (raw !== next) img.setAttribute("srcset", next);
+          }
+        }
+      }
+      if (img.getAttribute("data-arslan-load") !== "1") {
+        var rect = img.getBoundingClientRect();
+        if (rect.height) {
+          img.setAttribute("data-arslan-load", "1");
+          if (rect.top > window.innerHeight + 120) img.setAttribute("loading", "lazy");
+        }
+      }
+    });
+  }
+
+  function watchImages() {
+    if (window.__ARSLAN_IMG) return;
+    window.__ARSLAN_IMG = true;
+    var frame = 0;
+    function schedule() {
+      if (frame) return;
+      frame = requestAnimationFrame(function () {
+        frame = 0;
+        tightenImages();
+      });
+    }
+    tightenImages();
+    new MutationObserver(schedule).observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ["srcset"] });
+  }
+
+  function contentRequest() {
+    if (window.__ARSLAN_CONTENT && typeof window.__ARSLAN_CONTENT.then === "function") return window.__ARSLAN_CONTENT;
+    window.__ARSLAN_CONTENT = fetch("/api/content", { headers: { accept: "application/json" } }).then(function (response) {
+      if (!response.ok) throw new Error("content");
+      return response.json();
+    });
+    return window.__ARSLAN_CONTENT;
+  }
+
   function start() {
     bindFilters();
-    fetch("/api/content", { cache: "no-store" })
-      .then(function (response) { return response.json(); })
+    watchImages();
+    contentRequest()
       .then(function (json) {
         data = json;
         apply();

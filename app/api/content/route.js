@@ -105,6 +105,6 @@ export async function GET() {
         href: text(item.href, 300),
       })),
     },
-    { headers: { "cache-control": "no-store" } },
+    { headers: { "cache-control": "public, max-age=10, stale-while-revalidate=60" } },
   );
 }

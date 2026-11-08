@@ -17,6 +17,21 @@ const nextConfig = {
       ],
     };
   },
+  async headers() {
+    const year = [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }];
+    const day = [{ key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }];
+    const dirs = ["framer-home", "framer-about", "framer-projects", "framer-contact", "framer-project"];
+    const kinds = ["images", "js", "media", "fonts"];
+    return [
+      ...dirs.flatMap((dir) => kinds.map((kind) => ({ source: `/${dir}/${kind}/:path*`, headers: year }))),
+      { source: "/work/:path*", headers: day },
+      { source: "/certificates/:path*", headers: day },
+      { source: "/fonts/:path*", headers: year },
+      { source: "/chrome/:path*", headers: day },
+      { source: "/favicon.svg", headers: day },
+      { source: "/arslan.jpg", headers: day },
+    ];
+  },
   async redirects() {
     return [
       { source: "/projects/ai-habit-fitness-tracker-app", destination: "/projects/todo-task-app", permanent: false },
