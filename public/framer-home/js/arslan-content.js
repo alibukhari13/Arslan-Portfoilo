@@ -1001,7 +1001,7 @@
     style.textContent = [
       "header.framer-v-m5ha19, header.framer-v-19vil5u { opacity: 1 !important; transform: none !important; }",
       ".framer-1a4qqw4-container { opacity: 1 !important; transform: none !important; }",
-      "[data-framer-name='Desktop main'] > [data-framer-name='Items'] ~ [data-framer-name='Items'] { display: none !important; }"
+      ".framer-0a8tV > [data-framer-name='Items'] ~ [data-framer-name='Items'] { display: none !important; }"
     ].join("\n");
     document.head.appendChild(style);
     if (!document.querySelector("meta[name='theme-color']")) {
