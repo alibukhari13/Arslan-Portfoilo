@@ -754,12 +754,13 @@
     paint("+92 323 6586188", profile.phone);
     if (profile.phoneHref) {
       Array.prototype.forEach.call(document.querySelectorAll('a[href^="tel:"]'), function (anchor) {
-        anchor.setAttribute("href", profile.phoneHref);
+        if (anchor.getAttribute("href") !== profile.phoneHref) anchor.setAttribute("href", profile.phoneHref);
       });
     }
     if (profile.email) {
       Array.prototype.forEach.call(document.querySelectorAll('a[href^="mailto:"]'), function (anchor) {
-        anchor.setAttribute("href", "mailto:" + profile.email);
+        var mailto = "mailto:" + profile.email;
+        if (anchor.getAttribute("href") !== mailto) anchor.setAttribute("href", mailto);
       });
     }
     paint("Lahore, Punjab, Pakistan", profile.location);
@@ -771,7 +772,7 @@
         var label = anchor.textContent.trim();
         if (label !== item.from && label !== item.label && label !== next.label) return;
         if (next.label && label !== next.label && (label === item.from || label === item.label)) anchor.textContent = next.label;
-        if (href) anchor.setAttribute("href", href);
+        if (href && anchor.getAttribute("href") !== href) anchor.setAttribute("href", href);
       });
     });
   }
@@ -1129,6 +1130,22 @@
     if (!data || applying) return;
     var projects = data.projects || [];
     applying = true;
+    window.__ARSLAN_ID = {
+      name: (data.profile && data.profile.name) || "Arslan Sabir",
+      phone: (data.profile && data.profile.phone) || "+92 323 6586188",
+      phoneHref: (data.profile && data.profile.phoneHref) || "tel:+923236586188",
+      email: (data.profile && data.profile.email) || "marslansabir3322@gmail.com",
+      location: (data.profile && data.profile.location) || "Lahore, Punjab, Pakistan",
+      signature: "/signature-arslan.png",
+    };
+    if (window.__arslanScrub) window.__arslanScrub();
+    if (/^\/projects\/[^/]+\/?$/.test(location.pathname)) {
+      var parts = location.pathname.split("/").filter(Boolean);
+      var slug = decodeURIComponent(parts[1] || "");
+      var match = projects.filter(function (item) { return item.slug === slug; })[0];
+      var h1 = document.querySelector("#main h1");
+      if (match && h1 && h1.textContent.trim() !== match.title) document.documentElement.removeAttribute("data-arslan-case");
+    }
     try {
       settleLayout();
       if (projects.length && !settled(projects)) {
@@ -1224,20 +1241,18 @@
     contentRequest()
       .then(function (json) {
         data = json;
+        window.__arslanApply = function () {
+          apply();
+        };
         apply();
-        [400, 1200, 2500].forEach(function (delay) { setTimeout(apply, delay); });
-        var timer;
-        new MutationObserver(function () {
-          if (/^\/projects\/[^/]+\/?$/.test(location.pathname)) {
-            var parts = location.pathname.split("/").filter(Boolean);
-            var slug = decodeURIComponent(parts[1] || "");
-            var match = (data.projects || []).filter(function (item) { return item.slug === slug; })[0];
-            var h1 = document.querySelector("#main h1");
-            if (match && h1 && h1.textContent.trim() !== match.title) document.documentElement.removeAttribute("data-arslan-case");
-          }
-          clearTimeout(timer);
-          timer = setTimeout(apply, 300);
-        }).observe(document.documentElement, { childList: true, subtree: true, characterData: true });
+        [400, 1200, 2500, 5000].forEach(function (delay) { setTimeout(apply, delay); });
+        if (!window.__arslanWatch) {
+          var timer;
+          new MutationObserver(function () {
+            clearTimeout(timer);
+            timer = setTimeout(apply, 40);
+          }).observe(document.documentElement, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ["src", "srcset", "href"] });
+        }
       })
       .catch(function () {});
   }

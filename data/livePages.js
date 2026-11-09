@@ -192,7 +192,7 @@ export const liveDefaults = {
     locationLabel: "Address",
     location: "Lahore, Punjab, Pakistan",
     hoursLabel: "Availability",
-    hours: "Monday – Saturday 9:00 AM – 9:00 PM (IST)",
+    hours: "Monday – Saturday 9:00 AM – 9:00 PM (PKT)",
     nameLabel: "Name *",
     emailLabel: "E-mail *",
     messageLabel: "Tell me about your app, website, SaaS platform, or product idea.",
@@ -250,5 +250,8 @@ export function mergeLive(saved) {
     });
     out[key] = merged;
   });
+  if (out.contact && typeof out.contact.hours === "string" && out.contact.hours.includes("(IST)")) {
+    out.contact = { ...out.contact, hours: out.contact.hours.replaceAll("(IST)", "(PKT)") };
+  }
   return out;
 }
