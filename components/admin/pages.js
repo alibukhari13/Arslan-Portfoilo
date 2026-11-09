@@ -55,6 +55,7 @@ export const adminPages = [
         label: "Hero",
         updates: "Website → Home, the first screen after the opening. This is the browser title, the logo, the headline, the scrolling words, and the pointer photos. The name Arslan Sabir™ is edited under Startup.",
         cursorTrail: true,
+        mediaIds: ["home-banner-video"],
         livePage: "home",
         fields: [
           { key: "pageTitle", label: "Browser title", hint: "The text on the browser tab. It updates Home, About, Projects, and Contact." },
@@ -72,17 +73,20 @@ export const adminPages = [
         },
       },
       {
-        id: "home-media",
-        label: "Photos & video",
-        mediaPage: "home",
-        updates: "Every other photo and the banner video, grouped by the section on the site. Each box says where it shows and how it shows. The hero pointer photos are edited under Hero. The five project cards are the photo link on each project, under Selected work. Paste a link. Nothing is uploaded.",
-      },
-      {
         id: "home-statement",
         label: "Designer line",
-        updates: "Website → Home page → the line beside the portrait, and the large line “UI UX DESIGNER HELPING STARTUPS AND PRODUCT TEAMS…”. The signature inside that large line is the image link below. Saving this section updates that part of the Home page.",
+        updates: "Home, the portrait and the large designer line. Arslan’s photo is his portrait. The other photos here are other people, plus the phone screen. Arslan’s photo also updates About, Projects, Contact, and his moving photo in Selected work.",
         livePage: "home",
-        mediaIds: ["home-signature"],
+        mediaIds: [
+          "portrait",
+          "home-signature",
+          "home-cursor-1",
+          "home-cursor-2",
+          "home-cursor-3",
+          "home-cursor-4",
+          "home-cursor-5",
+          "home-cursor-6",
+        ],
         fields: [
           { key: "bio", label: "Letter line", long: true, hint: "Home page, the line that reads I’m Arslan Sabir… based in Lahore. It sits by the portrait." },
           { key: "statement", label: "Sentence beside the portrait", long: true, hint: "Home page, beside the portrait." },
@@ -95,8 +99,9 @@ export const adminPages = [
       {
         id: "home-numbers",
         label: "Numbers",
-        updates: "Website → Home page, the four number cards under the hero, and the same cards on About. The figure is the big number, then the + or %. Reorder, edit, or delete a card here.",
+        updates: "Website → Home page, the four number cards under the hero, and the same cards on About. The figure is the big number, then the + or %. The photo behind the numbers is the link below.",
         livePage: "home",
+        mediaIds: ["home-numbers-photo"],
         fields: [{ key: "numbersTitle", label: "Section heading", long: true }],
         list: {
           key: "numbers",
@@ -115,8 +120,18 @@ export const adminPages = [
       {
         id: "home-goals",
         label: "Your goals",
-        updates: "Website → Home page → the section “Your goals, my priority”, between the numbers and Selected work. Edit a card and that card changes. Delete a card and that card comes off the Home page. The small lines are the words inside the cards: the request list and the chat.",
+        updates: "Home, Your goals. The small faces and the person on the phone are other people, not Arslan. Edit a card and that card changes.",
         livePage: "home",
+        mediaIds: [
+          "home-goals-hands",
+          "home-goals-face-1",
+          "home-goals-face-2",
+          "home-goals-face-3",
+          "home-goals-face-4",
+          "home-goals-message",
+          "home-goals-phone",
+          "home-goals-phone-person",
+        ],
         fields: [
           { key: "goalsKicker", label: "Line above the section", long: true, hint: "Home → Your goals. The line “Design that’s built to last…”." },
           { key: "goalsFrom", label: "Small line, first half", hint: "Home → Your goals. The words “From ordinary”." },
@@ -157,8 +172,19 @@ export const adminPages = [
         id: "home-projects",
         label: "Selected work",
         canHide: true,
-        updates: "Website → Home page → Selected work. These are the words above the cards, and the All cases link. The cards themselves are the projects, edited under Projects.",
+        updates: "Home, Selected work. These are the words and the moving photos. Moving photo 2 is Arslan’s portrait, edited under Designer line. The project cards are edited under Projects.",
         livePage: "home",
+        mediaIds: [
+          "home-work-move-1",
+          "home-work-move-3",
+          "home-work-move-4",
+          "home-work-move-5",
+          "home-work-move-6",
+          "home-work-move-7",
+          "home-work-move-8",
+          "home-work-move-9",
+          "home-work-move-10",
+        ],
         fields: [
           { key: "workLabel", label: "Section label", hint: "Home → Selected work. The small words Selected work." },
           { key: "workTitle", label: "Heading, first line", hint: "Home → Selected work. The words Proven results." },
@@ -244,8 +270,9 @@ export const adminPages = [
       {
         id: "home-contact",
         label: "Contact block",
-        updates: "The closing block on the home page. The same heading also closes About and Projects. The contact page hours and address are edited under Contact.",
+        updates: "Home, the closing block. The photo beside the name is Arslan. The same heading closes About and Projects. Hours and address are under Contact.",
         livePage: "home",
+        mediaIds: ["home-closing-photo"],
         fields: [
           { key: "contactTitle", label: "Heading", long: true },
           { key: "contactText", label: "Text", long: true },
@@ -299,8 +326,17 @@ export const adminPages = [
       {
         id: "about-opening",
         label: "Opening and philosophy",
-        updates: "Website → About page. The large name, the line under it, the role, the Stack & Tools heading, and the philosophy block near the bottom. Photos on this page are the next section.",
+        updates: "Website → About page. The large name, the line under it, the role, the Stack & Tools heading, the philosophy block, the group photo, and the brand logos. The portrait is the same photo edited under Home → Designer line.",
         livePage: "about",
+        mediaIds: [
+          "about-group",
+          "about-logo-1",
+          "about-logo-2",
+          "about-logo-3",
+          "about-logo-4",
+          "about-logo-5",
+          "about-logo-6",
+        ],
         fields: [
           { key: "nameFirst", label: "Large name, first line", hint: "About page, the large word Arslan." },
           { key: "nameSecond", label: "Large name, second line", hint: "About page, the large word Sabir." },
@@ -313,12 +349,6 @@ export const adminPages = [
           { key: "philosophyLead", label: "Philosophy, first paragraph", long: true },
           { key: "philosophy", label: "Philosophy, second paragraph", long: true },
         ],
-      },
-      {
-        id: "about-media",
-        label: "Photos",
-        mediaPage: "about",
-        updates: "About page. The group photo and the brand logos. The portrait is edited once, under Home · Photos, and that same link is the portrait here too. Paste a link. Nothing is uploaded.",
       },
       {
         id: "about-experience",
@@ -451,7 +481,7 @@ export const adminPages = [
       {
         id: "chrome-footer-words",
         label: "Footer",
-        updates: "Website → every page, the footer. The heading, newsletter, copyright, and the X, LinkedIn, Behance, Instagram, and Dribbble links. The opening screen is edited under Startup.",
+        updates: "Website → every page, the footer. The heading, newsletter, copyright, and the social links. Add a link, edit its name and address, or delete it. The opening screen is edited under Startup.",
         livePage: "site",
         fields: [
           { key: "footerTitle", label: "Heading", hint: "Footer on every page. The words Stay connected." },
@@ -464,12 +494,11 @@ export const adminPages = [
           {
             key: "socials",
             titleKey: "label",
-            empty: "Link",
-            allowAdd: false,
-            allowMove: false,
-            allowDelete: false,
+            empty: "New link",
+            addLabel: "Add social link",
+            blank: { label: "", href: "" },
             heading: "Social links",
-            note: "The words in the footer: X, LinkedIn, Behance, Instagram, and Dribbble. Edit the name or the link.",
+            note: "These are the links in the footer, in this order. Edit the name or the address. Add a link or delete one and the footer updates.",
             fields: [
               { key: "label", label: "Name" },
               { key: "href", label: "Link" },

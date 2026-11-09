@@ -46,8 +46,9 @@
       return "/";
     }
     if (/linkedin\.com\/in\/arslan-mohan/i.test(v)) return "https://www.linkedin.com/in/marslansabir/";
-    if (/instagram\.com\/arslan_mohan/i.test(v)) return "https://www.behance.net/marslansabir";
-    if (/dribbble\.com\/arslanmohan/i.test(v)) return "https://dribbble.com/marslansabir";
+    if (/instagram\.com\/arslan_mohan/i.test(v)) return "https://www.instagram.com/marslansabirali/";
+    if (/dribbble\.com\/arslanmohan/i.test(v)) return "https://www.dribbble.com/marslansabir";
+    if (/x\.com\/arslan_uiux/i.test(v)) return "https://contra.com/arslan_sabir/";
     if (/mailto:srirajmohan19@gmail\.com|mailto:hello@lyniqstudio\.com/i.test(v)) return "mailto:" + (next.email || id.email);
     if (/tel:/i.test(v) && /99620|68501/.test(v)) return next.phoneHref || id.phoneHref;
     return v;
@@ -172,7 +173,7 @@
     var fallback = el;
     for (var i = 0; el && i < 6; i += 1) {
       var text = el.textContent || "";
-      if (/Sriraj|sriraj|Mohan|99620|lyniqstudio|based in India|based in india|Chennai/i.test(text)) return el;
+      if (/Sriraj|sriraj|Mohan|99620|lyniqstudio|based in India|based in india|Chennai|\(IST\)/i.test(text)) return el;
       fallback = el;
       el = el.parentElement;
     }
@@ -190,7 +191,7 @@
       if (scope.nodeType === 3) {
         var host = hostFor(scope);
         if (host) changed = rewrite(host) || changed;
-      } else if (/Sriraj|sriraj|Mohan|99620|lyniqstudio|based in India|based in india|Chennai/i.test(scope.textContent || "")) {
+      } else if (/Sriraj|sriraj|Mohan|99620|lyniqstudio|based in India|based in india|Chennai|\(IST\)/i.test(scope.textContent || "")) {
         changed = rewrite(scope) || changed;
       }
       var nodes = scope.querySelectorAll ? scope.querySelectorAll("a,img,source,video") : [];

@@ -9,6 +9,7 @@ function text(value, max) {
 
 function mediaUrl(value, fallback) {
   const url = text(value, 500);
+  if (!url) return "";
   if (url.startsWith("/") && !url.startsWith("//")) return url;
   if (/^https?:\/\//i.test(url)) return url;
   return fallback;
@@ -83,12 +84,15 @@ export async function GET() {
       },
       pages: mergeLive(site.copy?.pages),
       origins: liveDefaults,
-      media: liveMedia.map((item) => ({
-        id: item.id,
-        match: item.match,
-        url: mediaUrl(site.copy?.media?.[item.id], item.src),
-        alt: text(site.copy?.mediaAlt?.[item.id], 180) || item.alt || "",
-      })),
+      media: liveMedia.map((item) => {
+        const stored = site.copy?.media?.[item.id];
+        return {
+          id: item.id,
+          match: item.match,
+          url: stored == null ? item.src : mediaUrl(stored, ""),
+          alt: text(site.copy?.mediaAlt?.[item.id], 180) || item.alt || "",
+        };
+      }),
       heroCursor: (Array.isArray(site.copy?.heroCursor) ? site.copy.heroCursor : heroCursorDefaults)
         .map((item) => mediaUrl(item, ""))
         .filter(Boolean),

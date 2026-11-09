@@ -1,4 +1,0 @@
-root	HeaderDesktop	HeaderDesktop
-main	Form	Form
-main	FAQ	FAQ
-after	FooterDesktop	FooterDesktop

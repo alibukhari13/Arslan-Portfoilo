@@ -2,7 +2,7 @@
  * Fallback portfolio copy.
  * Live edits happen in /admin and are stored in Supabase.
  * This file is used when the database is empty or unavailable.
- * Section layout lives in components/home and components/views.
+ * The public pages are the saved layouts in public/framer-home, framer-about, framer-projects, framer-project, and framer-contact.
  */
 
 import { liveDefaults } from "./livePages";

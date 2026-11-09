@@ -718,7 +718,7 @@ export default function AdminPanel({ initialAuthed, initialData = null, initialE
         const saved = await saveProfile(profile);
         if (!saved.ok) return saved;
       }
-      if (current.copyKeys?.length || current.certs || current.livePage || current.mediaPage) {
+      if (current.copyKeys?.length || current.certs || current.livePage || current.mediaPage || current.mediaIds?.length) {
         const next = current.certs ? { ...copy, certificates: cleanCertificates(copy.certificates) } : copy;
         const saved = await saveCopy(next);
         if (!saved.ok) return saved;
@@ -727,7 +727,7 @@ export default function AdminPanel({ initialAuthed, initialData = null, initialE
     }, "Saved.");
   }
 
-  const hasText = Boolean(current.profileKeys?.length || current.copyKeys?.length || current.legalSlug || current.certs || current.livePage || current.mediaPage);
+  const hasText = Boolean(current.profileKeys?.length || current.copyKeys?.length || current.legalSlug || current.certs || current.livePage || current.mediaPage || current.mediaIds?.length || current.cursorTrail);
   const legalExisting = (data?.legal_pages || []).find((row) => row.slug === current.legalSlug);
   const legalDraft = current.legalSlug
     ? drafts[`legal:${current.legalSlug}`] || legalExisting || { slug: current.legalSlug, title: "", updated_label: "", lede: "", sections: [{ heading: "", text: "" }] }

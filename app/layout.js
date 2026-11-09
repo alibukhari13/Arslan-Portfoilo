@@ -56,7 +56,7 @@ export async function generateMetadata() {
       template: `%s — ${profile.name}`,
     },
     description: profile.intro,
-    icons: { icon: "/favicon.svg", apple: "/favicon.svg" },
+    icons: { icon: "/favicon.png", apple: "/favicon.png" },
     openGraph: {
       title: `${profile.name} — ${profile.role}`,
       description: profile.intro,

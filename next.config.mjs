@@ -28,7 +28,7 @@ const nextConfig = {
       { source: "/certificates/:path*", headers: day },
       { source: "/fonts/:path*", headers: year },
       { source: "/chrome/:path*", headers: day },
-      { source: "/favicon.svg", headers: day },
+      { source: "/favicon.png", headers: day },
       { source: "/arslan.jpg", headers: day },
     ];
   },

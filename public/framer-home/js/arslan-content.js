@@ -3,13 +3,6 @@
   var data = null;
   var applying = false;
 
-  if (/^\/projects\/[^/]+\/?$/.test(location.pathname)) {
-    var hold = document.createElement("style");
-    hold.id = "arslan-case-hold";
-    hold.textContent = "html:not([data-arslan-case='ready']) section[data-framer-name='Hero'], html:not([data-arslan-case='ready']) article { visibility: hidden; }";
-    document.head.appendChild(hold);
-  }
-
   function safeUrl(value) {
     var url = String(value || "").trim();
     if (url.charAt(0) === "/" && url.charAt(1) !== "/") return url;
@@ -26,7 +19,8 @@
       var heading = anchor.querySelector("h3");
       if (!heading) return false;
       if (anchor.getAttribute("data-arslan-card") === "1") return true;
-      return isOriginal(heading.textContent || "");
+      if (isOriginal(heading.textContent || "")) return true;
+      return /\/projects\/[^/?#]+/.test(anchor.getAttribute("href") || "");
     });
   }
 
@@ -118,11 +112,17 @@
   }
 
   function updateCount(total) {
+    var next = "Projects (" + total + ")";
     var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
     var node;
     while ((node = walker.nextNode())) {
-      if (node.nodeValue && node.nodeValue.indexOf("(17)") !== -1) {
-        node.nodeValue = node.nodeValue.replace("(17)", "(" + total + ")");
+      var value = node.nodeValue || "";
+      if (value.indexOf("Projects (") !== -1) {
+        var replaced = value.replace(/Projects \(\d+\)/g, next);
+        if (replaced !== value) node.nodeValue = replaced;
+      } else if (/^\s*\(\d+\)\s*$/.test(value)) {
+        var fresh = "(" + total + ")";
+        if (value.trim() !== fresh) node.nodeValue = value.replace(/\(\d+\)/, fresh);
       }
     }
   }
@@ -137,6 +137,14 @@
 
   function storiesSection() {
     return document.querySelector("section.framer-a91qzl, section[data-framer-name='Testimonials']");
+  }
+
+  function placeCertificates() {
+    var stories = storiesSection();
+    var current = document.getElementById("arslan-certificates");
+    if (!stories || !current) return;
+    var order = getComputedStyle(stories).order;
+    if (order && current.style.order !== order) current.style.order = order;
   }
 
   function hideStories() {
@@ -154,6 +162,7 @@
     }
     var signature = "v4|" + (info.certificatesLead || "") + "|" + info.certificates.map(function (item) { return item.image + item.title + item.issuer; }).join("|");
     var inPlace = !stories || (current && current.nextElementSibling === stories);
+    placeCertificates();
     if (current && current.getAttribute("data-signature") === signature && inPlace) {
       var existingGrid = current.querySelector(".certs");
       if (existingGrid) existingGrid.style.gridTemplateColumns = window.innerWidth < 810 ? "1fr" : "repeat(2, minmax(0, 1fr))";
@@ -213,6 +222,7 @@
     });
     wrap.appendChild(grid);
     section.appendChild(wrap);
+    if (stories) section.style.order = getComputedStyle(stories).order;
     if (stories && stories.parentElement) stories.parentElement.insertBefore(section, stories);
     else {
       var heading = Array.prototype.find.call(document.querySelectorAll("h2"), function (node) {
@@ -235,6 +245,32 @@
     });
   }
 
+  function norm(value) {
+    return String(value || "").replace(/\s+/g, " ").trim();
+  }
+
+  function exactNodes(from, root) {
+    var wanted = norm(from);
+    if (!wanted) return [];
+    var scope = root && root.querySelectorAll ? root : document.body;
+    if (scope === document.documentElement) scope = document.body;
+    var nodes = scope.querySelectorAll("h1,h2,h3,h4,p,span,a,button,label,li,div");
+    var hits = [];
+    for (var i = 0; i < nodes.length; i += 1) {
+      var el = nodes[i];
+      if (norm(el.textContent) !== wanted) continue;
+      var tighter = false;
+      for (var c = 0; c < el.children.length; c += 1) {
+        if (norm(el.children[c].textContent) === wanted) {
+          tighter = true;
+          break;
+        }
+      }
+      if (!tighter) hits.push(el);
+    }
+    return hits;
+  }
+
   function paintPlaceholder(from, to) {
     if (!from || to == null || from === to) return;
     var next = String(to);
@@ -244,19 +280,42 @@
     });
   }
 
+  var BAKED = {
+    Branding: ["UI/UX Design"],
+    "Framer Design": ["App Design"],
+    Websites: ["Websites Design"],
+    "Design support": ["Landing Page Design"],
+    "The Hindu": ["DevArion Solution"],
+    Optimeye: ["MilestoneZero"],
+    Kraftbase: ["Frenco"],
+    Coinfantasy: ["Frenco"],
+    "Graphic Designer": ["UI/UX & Product Designer", "UI/UX Designer"],
+    "Senior UI/UX Designer": ["UI/UX Designer Inter"],
+    "AI Habit & Fitness Tracker App": ["TODO Task App"],
+    "Fintech AI Mobile Wallet App": ["NexPay"],
+    "Food Delivery App Design": ["Food Delivery App"],
+    "3D AI Builder Platform": ["Vaultex"],
+    "Music Player & Streaming App": ["Portfolio Landing"],
+  };
+
   function paint(from, to, root) {
-    if (!from || to == null || from === to) return;
+    var names = [from].concat(BAKED[from] || []);
+    names.forEach(function (name) { paintOne(name, to, root); });
+  }
+
+  function paintOne(from, to, root) {
+    if (!from || to == null || norm(from) === norm(to)) return;
     var next = String(to);
-    if (!next) return;
-    leaves(root).forEach(function (el) {
-      if (el.textContent.trim() === from) el.textContent = next;
+    if (!norm(next)) return;
+    exactNodes(from, root).forEach(function (el) {
+      if (norm(el.textContent) !== norm(next)) el.textContent = next;
     });
   }
 
   function clearText(from, root) {
     if (!from) return;
-    leaves(root).forEach(function (el) {
-      if (el.textContent.trim() === from) el.textContent = "";
+    exactNodes(from, root).forEach(function (el) {
+      el.textContent = "";
     });
   }
 
@@ -346,7 +405,7 @@
   }
 
   function sectionRoot(label) {
-    var heads = leaves(document.body).filter(function (el) { return el.textContent.trim() === label; });
+    var heads = exactNodes(label, document.body);
     return heads.map(function (head) {
       var node = head;
       for (var i = 0; i < 12 && node.parentElement && node.parentElement !== document.body; i += 1) {
@@ -359,7 +418,7 @@
 
   function rowList(root, samples) {
     var wanted = {};
-    samples.forEach(function (sample) { if (sample) wanted[sample] = true; });
+    samples.forEach(function (sample) { if (sample) wanted[String(sample).trim()] = true; });
     var hits = leaves(root).filter(function (el) { return wanted[el.textContent.trim()]; });
     var lists = [];
     hits.forEach(function (hit) {
@@ -380,10 +439,7 @@
   }
 
   function writeLeaf(row, from, to) {
-    if (!from || !to || from === to) return;
-    leaves(row).forEach(function (el) {
-      if (el.textContent.trim() === from) el.textContent = to;
-    });
+    paint(from, to, row);
   }
 
   function syncTicker(origins, items) {
@@ -479,10 +535,16 @@
       }
       while (rows.length > items.length) rows.pop().remove();
       rows.forEach(function (row, index) {
-        var origin = origins[Math.min(index, origins.length - 1)] || {};
+        var origin = origins[Math.min(index, Math.max(origins.length - 1, 0))] || {};
         var item = items[index] || {};
         Object.keys(item).forEach(function (field) {
           if (field === "from" || Array.isArray(item[field])) return;
+          if (index >= origins.length && origins.length) {
+            var fallback = origins[origins.length - 1][field];
+            var neighbor = items[origins.length - 1] && items[origins.length - 1][field];
+            if (neighbor && neighbor !== item[field]) writeLeaf(row, neighbor, item[field]);
+            if (fallback && fallback !== item[field]) writeLeaf(row, fallback, item[field]);
+          }
           writeLeaf(row, origin[field], item[field]);
         });
       });
@@ -671,10 +733,6 @@
     paint(aboutOrigin.philosophy, about.philosophy);
     sectionRoot("Experience").concat(sectionRoot(aboutOrigin.jobs && aboutOrigin.jobs[0] ? aboutOrigin.jobs[0].company : "")).forEach(function (root) {
       syncRows(root, aboutOrigin.jobs || [], about.jobs || [], "company");
-      (aboutOrigin.jobs || []).forEach(function (job, index) {
-        var next = (about.jobs || [])[index];
-        if (next) paint(job.role, next.role, root);
-      });
     });
 
     var projects = pages.projects || {};
@@ -702,6 +760,9 @@
     paint(contactOrigin.location, contact.location);
     paint(contactOrigin.hoursLabel, contact.hoursLabel);
     paint(contactOrigin.hours, contact.hours);
+    if (contact.hours && String(contact.hours).indexOf("(PKT)") !== -1) {
+      paint(String(contact.hours).replace("(PKT)", "(IST)"), contact.hours);
+    }
     paint(contactOrigin.formHeading, contact.formHeading);
     paint(contactOrigin.nameLabel, contact.nameLabel);
     paintPlaceholder(contactOrigin.nameLabel, contact.nameLabel);
@@ -764,14 +825,71 @@
       });
     }
     paint("Lahore, Punjab, Pakistan", profile.location);
-    ((origins.site && origins.site.socials) || []).forEach(function (item, index) {
-      var next = (sitePage.socials || [])[index];
-      if (!next) return;
-      var href = safeUrl(next.href);
-      Array.prototype.forEach.call(document.querySelectorAll("a"), function (anchor) {
-        var label = anchor.textContent.trim();
-        if (label !== item.from && label !== item.label && label !== next.label) return;
-        if (next.label && label !== next.label && (label === item.from || label === item.label)) anchor.textContent = next.label;
+    applySocials(siteOrigin.socials || [], sitePage.socials || []);
+    fitWordmark();
+  }
+
+  function fitWordmark() {
+    Array.prototype.forEach.call(document.querySelectorAll('svg[data-framer-name="Lyniq"]'), function (svg) {
+      var text = svg.querySelector("p");
+      if (!text) return;
+      var word = norm(text.textContent);
+      if (!word || word.length > 24) return;
+      var box = svg.viewBox && svg.viewBox.baseVal;
+      if (!box || !box.width || !box.height) return;
+      var range = document.createRange();
+      range.selectNodeContents(text);
+      var rect = range.getBoundingClientRect();
+      var frame = svg.getBoundingClientRect();
+      if (!rect.width || !frame.width) return;
+      var units = rect.width * box.width / frame.width;
+      var next = Math.ceil(units + 8);
+      if (!next || Math.abs(box.width - next) < 4) return;
+      svg.setAttribute("viewBox", "0 0 " + next + " " + box.height);
+    });
+  }
+
+  function applySocials(originItems, nextItems) {
+    var known = {};
+    (originItems || []).forEach(function (item) {
+      if (!item) return;
+      if (item.from) known[norm(item.from)] = true;
+      if (item.label) known[norm(item.label)] = true;
+    });
+    var items = (nextItems || []).filter(function (item) {
+      return item && norm(item.label) && safeUrl(item.href);
+    });
+    items.forEach(function (item) { known[norm(item.label)] = true; });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-framer-name="Links"], [data-framer-name="Social"]'), function (list) {
+      var rows = Array.prototype.filter.call(list.children, function (child) {
+        return child.querySelectorAll && child.querySelectorAll("a").length === 1;
+      });
+      if (rows.length < 2) return;
+      var hits = 0;
+      rows.forEach(function (row) {
+        var anchor = row.querySelector("a");
+        if (!anchor) return;
+        if (known[norm(anchor.textContent)] || leaves(row).some(function (el) { return known[norm(el.textContent)]; })) hits += 1;
+      });
+      if (hits < 2) return;
+      var proto = rows[0];
+      while (rows.length < items.length) {
+        var clone = proto.cloneNode(true);
+        list.appendChild(clone);
+        rows.push(clone);
+      }
+      while (rows.length > items.length) rows.pop().remove();
+      rows.forEach(function (row, index) {
+        var item = items[index];
+        var anchor = row.querySelector("a");
+        if (!anchor || !item) return;
+        var label = String(item.label).trim();
+        var href = safeUrl(item.href);
+        var labeled = leaves(row).filter(function (el) {
+          return known[norm(el.textContent)] || norm(el.textContent) === norm(anchor.textContent);
+        });
+        if (labeled.length) labeled.forEach(function (el) { if (el.textContent !== label) el.textContent = label; });
+        else if (anchor.textContent !== label) anchor.textContent = label;
         if (href && anchor.getAttribute("href") !== href) anchor.setAttribute("href", href);
       });
     });
@@ -808,15 +926,20 @@
     items.forEach(function (item) {
       var next = safeUrl(item.url);
       var match = String(item.match || "").toLowerCase();
-      if (!next || !match) return;
+      if (!match) return;
       Array.prototype.forEach.call(nodes, function (el) {
         if (el.closest && el.closest("[data-arslan-card], #arslan-certificates")) return;
         var marked = el.getAttribute("data-arslan-media");
         if (marked && marked !== item.id) return;
-        var hay = ((el.getAttribute("src") || "") + " " + (el.getAttribute("srcset") || "")).toLowerCase();
+        var hay = ((el.getAttribute("src") || "") + " " + (el.getAttribute("srcset") || "") + " " + (el.getAttribute("width") || "") + "x" + (el.getAttribute("height") || "")).toLowerCase();
         var signature = item.id === "home-signature" && hay.indexOf("signature-arslan.png") !== -1;
         if (!marked && hay.indexOf(match) === -1 && !signature) return;
         el.setAttribute("data-arslan-media", item.id);
+        if (!next) {
+          el.style.setProperty("display", "none", "important");
+          return;
+        }
+        if (el.style.display === "none") el.style.removeProperty("display");
         if (item.alt && el.tagName === "IMG") el.setAttribute("alt", item.alt);
         if (sameFile(el.getAttribute("src") || "", next)) return;
         el.removeAttribute("srcset");
@@ -912,10 +1035,16 @@
     revealCase(project);
     var nodes = caseNodes();
     var expect = ["H1", "P", "IMG", "P", "H3", "P", "H3", "P", "H3", "P", "H3", "P", "P", "P", "P", "P", "P", "IMG", "P", "P", "P", "P", "P", "P", "IMG", "IMG", "IMG", "P", "P", "P", "P", "P", "P", "IMG", "P", "P", "P", "H2", "P", "P", "P", "P", "IMG", "P", "P", "P", "IMG"];
-    if (!nodes || nodes.length < expect.length) return;
-    for (var n = 0; n < expect.length; n++) {
-      if (nodes[n].tagName !== expect[n]) return;
+    var matched = !!(nodes && nodes.length >= expect.length);
+    if (matched) {
+      for (var n = 0; n < expect.length; n++) {
+        if (nodes[n].tagName !== expect[n]) {
+          matched = false;
+          break;
+        }
+      }
     }
+    if (matched) {
     var labels = data.caseLabels || {};
     var shots = [project.image].concat(project.gallery || []).map(safeUrl).filter(Boolean);
     while (shots.length && shots.length < 6) shots.push(shots[shots.length - 1]);
@@ -995,8 +1124,10 @@
     });
     if (project.title) {
       document.title = project.title + " | Arslan Sabir";
-      var live = document.querySelector("[data-arslan='title']");
-      if (live) live.textContent = document.title;
+      var titles = document.querySelectorAll("[data-arslan='title']");
+      Array.prototype.forEach.call(titles, function (live) {
+        if (live.textContent !== project.title) live.textContent = project.title;
+      });
     }
     for (var after = expect.length; after < nodes.length; after++) {
       if (nodes[after].tagName === "IMG") {
@@ -1009,7 +1140,208 @@
     var story = document.querySelector("article [data-framer-name='Content']");
     if (hero) hero.style.display = hidden ? "none" : "";
     if (story) story.style.display = hidden ? "none" : "";
+    }
+    ownCase(project);
+    hideExtraShots(project);
+    scrubCase(project);
     revealCase(project);
+  }
+
+  function ownCase(project) {
+    var heading = project.title + " | Arslan Sabir";
+    document.title = heading;
+    [
+      ["property", "og:title", heading],
+      ["property", "og:description", project.summary || ""],
+      ["name", "description", project.summary || ""],
+      ["name", "twitter:title", heading],
+      ["name", "twitter:description", project.summary || ""]
+    ].forEach(function (item) {
+      var meta = document.querySelector('meta[' + item[0] + '="' + item[1] + '"]');
+      if (meta && meta.getAttribute("content") !== item[2]) meta.setAttribute("content", item[2]);
+    });
+    var h1 = document.querySelector("#main h1");
+    setCaseText(h1, project.title);
+    var hero = document.querySelector("section[data-framer-name='Hero'] img");
+    if (hero && project.image) fillImage(hero, project.image);
+    Array.prototype.forEach.call(document.querySelectorAll("#main img"), function (img) {
+      var src = img.getAttribute("src") || "";
+      if (src.indexOf("framerusercontent.com") === -1) return;
+      if (img.closest("a")) return;
+      fillImage(img, project.image);
+    });
+  }
+
+  function hideExtraShots(project) {
+    var gallery = (project.gallery || []).map(safeUrl).filter(Boolean);
+    var hero = safeUrl(project.image);
+    var article = document.querySelector("article");
+    if (!article) return;
+    var extras = Array.prototype.filter.call(article.querySelectorAll("img"), function (img) {
+      return !img.closest("a");
+    });
+    extras.forEach(function (img, index) {
+      var src = gallery[index] || hero;
+      var frame = img.parentElement || img;
+      if (!src) {
+        var block = frame.parentElement;
+        if (block) block.style.display = "none";
+        return;
+      }
+      frame.style.display = "block";
+      if (frame.parentElement) frame.parentElement.style.display = "";
+      fillImage(img, src);
+      if (project.title) img.alt = project.title;
+    });
+  }
+
+  function scrubCase(project) {
+    var own = {};
+    [project.title, project.summary, project.date, project.tools, project.productType, project.duration, project.context, project.contextNote, project.challenge, project.challengeNote, project.problem, project.problemNote, project.solution, project.solutionNote, project.approach, project.approachNote, project.featuresLead, project.featuresNote, project.conclusion, project.conclusionNote].forEach(function (value) {
+      var text = String(value || "").replace(/\s+/g, " ").trim();
+      if (text) own[text] = 1;
+    });
+    var banned = [
+      "March 2026",
+      "3-4 weeks",
+      "Figma",
+      "App Design",
+      "Food Delivery App",
+      "TODO Task App",
+      "NexPay",
+      "Browse, customize, and track an order in a flow that stays short on a phone.",
+      "A task app organized around capturing work quickly and seeing the day at a glance.",
+      "A finance app focused on balances, transfers, and trust at the moment of payment.",
+      "A modern food delivery experience designed to help users discover restaurants, customize meals, and place orders quickly through a seamless mobile interface."
+    ];
+    var root = document.querySelector("article") || document.querySelector("#main");
+    if (!root) return;
+    Array.prototype.forEach.call(root.querySelectorAll("h1, h2, h3, p"), function (el) {
+      if (el.closest("a")) return;
+      var text = (el.textContent || "").replace(/\s+/g, " ").trim();
+      if (!text || own[text]) return;
+      if (banned.indexOf(text) !== -1) setCaseText(el, "");
+    });
+  }
+
+  function unclipInset() {
+    var blocks = document.querySelectorAll("[data-framer-name='Primary']");
+    Array.prototype.forEach.call(blocks, function (block) {
+      var shown = getComputedStyle(block);
+      if (shown.display === "none" || shown.visibility === "hidden") return;
+      block.style.transform = "";
+      var box = block.getBoundingClientRect();
+      if (box.width < 24 || box.height < 24 || box.bottom < 0) return;
+      var clip = block.parentElement;
+      var limit = null;
+      while (clip && clip !== document.body) {
+        var cs = getComputedStyle(clip);
+        var frame = clip.getBoundingClientRect();
+        if ((cs.overflowX === "hidden" || cs.overflowX === "clip") && frame.width > 40 && frame.height > 20 && frame.left > box.left + 4) {
+          limit = frame;
+          break;
+        }
+        clip = clip.parentElement;
+      }
+      if (!limit) return;
+      var shift = Math.round(limit.left - box.left);
+      if (shift < 4 || shift > 72) return;
+      if (box.right + shift > limit.right - 4) shift = Math.max(0, Math.floor(limit.right - 4 - box.right));
+      if (shift < 4) return;
+      block.style.transform = "translateX(" + shift + "px)";
+    });
+  }
+
+  function fitServiceTitles() {
+    var width = window.innerWidth || 0;
+    if (!width) return;
+    var widthChanged = window.__ARSLAN_FIT_W !== width;
+    window.__ARSLAN_FIT_W = width;
+    var groups = [];
+    var rows = document.querySelectorAll("[data-framer-name='Desktop active'], [data-framer-name='Desktop inactive'], [data-framer-name='Tablet active'], [data-framer-name='Tablet inative'], [data-framer-name='Phone active'], [data-framer-name='Phone inactive']");
+    Array.prototype.forEach.call(rows, function (row) {
+      var cs = getComputedStyle(row);
+      if (cs.display === "none" || cs.visibility === "hidden") return;
+      var box = row.getBoundingClientRect();
+      if (box.width < 40 || box.height < 8) return;
+      var list = row.parentElement;
+      var walk = row.parentElement;
+      while (walk && walk !== document.body) {
+        var count = walk.querySelectorAll("[data-framer-name='Desktop active'], [data-framer-name='Desktop inactive'], [data-framer-name='Tablet active'], [data-framer-name='Tablet inative'], [data-framer-name='Phone active'], [data-framer-name='Phone inactive']").length;
+        if (count >= 2) {
+          list = walk;
+          break;
+        }
+        walk = walk.parentElement;
+      }
+      var group = null;
+      for (var i = 0; i < groups.length; i += 1) {
+        if (groups[i].list === list) group = groups[i];
+      }
+      if (!group) {
+        group = { list: list, rows: [] };
+        groups.push(group);
+      }
+      group.rows.push(row);
+    });
+    groups.forEach(function (group) {
+      var titles = group.rows.map(function (row) {
+        return row.querySelector("[data-framer-name='Websites'] p") || row.querySelector("p");
+      }).filter(Boolean);
+      if (!titles.length) return;
+      if (widthChanged) {
+        titles.forEach(function (title) {
+          title.style.fontSize = title.getAttribute("data-arslan-size") || "";
+        });
+      }
+      function fits(row) {
+        var title = row.querySelector("[data-framer-name='Websites'] p") || row.querySelector("p");
+        if (!title) return true;
+        var num = row.querySelector("[data-framer-name='5']");
+        var box = row.getBoundingClientRect();
+        var limit = Math.min(box.right, width - 6);
+        var edge = title.getBoundingClientRect().right;
+        if (num) edge = Math.max(edge, num.getBoundingClientRect().right);
+        return edge <= limit - 1;
+      }
+      var sizes = titles.map(function (title) { return Math.round(parseFloat(getComputedStyle(title).fontSize) || 0); });
+      var sameSize = sizes.every(function (size) { return size === sizes[0]; });
+      if (!widthChanged && sameSize && group.rows.every(fits)) return;
+      var smallest = 0;
+      var baseSize = 0;
+      group.rows.forEach(function (row) {
+        var title = row.querySelector("[data-framer-name='Websites'] p") || row.querySelector("p");
+        if (!title) return;
+        if (!title.hasAttribute("data-arslan-size")) title.setAttribute("data-arslan-size", title.style.fontSize || "");
+        title.style.fontSize = title.getAttribute("data-arslan-size") || "";
+        var base = parseFloat(getComputedStyle(title).fontSize) || 0;
+        if (base > baseSize) baseSize = base;
+        var num = row.querySelector("[data-framer-name='5']");
+        var box = row.getBoundingClientRect();
+        var limit = Math.min(box.right, width - 6);
+        var size = base;
+        var guard = 0;
+        while (guard < 18) {
+          var edge = title.getBoundingClientRect().right;
+          if (num) edge = Math.max(edge, num.getBoundingClientRect().right);
+          if (edge <= limit - 1) break;
+          size = Math.round(size * 0.94);
+          if (size < 15) break;
+          title.style.fontSize = size + "px";
+          guard += 1;
+        }
+        if (!smallest || size < smallest) smallest = size;
+      });
+      if (!smallest || !baseSize || smallest >= baseSize - 0.5) {
+        titles.forEach(function (title) {
+          title.style.fontSize = title.getAttribute("data-arslan-size") || "";
+        });
+        return;
+      }
+      titles.forEach(function (title) {
+        title.style.fontSize = smallest + "px";
+      });
+    });
   }
 
   function settleLayout() {
@@ -1019,6 +1351,9 @@
     style.textContent = [
       "header.framer-v-m5ha19, header.framer-v-19vil5u { opacity: 1 !important; transform: none !important; }",
       ".framer-1a4qqw4-container { opacity: 1 !important; transform: none !important; }",
+      "article [data-framer-name='Content'] [data-framer-name='Quote'], article [data-framer-name='Content'] [data-framer-name='Images'], article [data-framer-name='Content'] [data-framer-name='Images'] > div { opacity: 1 !important; transform: none !important; }",
+      "article [data-framer-background-image-wrapper='true'] { display: block !important; }",
+      "article [data-framer-background-image-wrapper='true'] img { width: 100%; height: 100%; object-fit: cover; }",
       ".framer-0a8tV > [data-framer-name='Items'] ~ [data-framer-name='Items'] { display: none !important; }"
     ].join("\n");
     document.head.appendChild(style);
@@ -1109,21 +1444,14 @@
     document.documentElement.setAttribute("data-arslan-case", "ready");
   }
 
-  function revealCase(project) {
-    var h1 = document.querySelector("#main h1");
-    var ready = !!(project && h1 && h1.textContent.trim() === String(project.title || "").trim());
-    if (ready) {
-      showCaseNow();
-      if (window.__ARSLAN_CASE_REVEAL) {
-        clearTimeout(window.__ARSLAN_CASE_REVEAL);
-        window.__ARSLAN_CASE_REVEAL = 0;
-      }
-      return;
-    }
-    document.documentElement.removeAttribute("data-arslan-case");
-    if (!window.__ARSLAN_CASE_REVEAL) {
-      window.__ARSLAN_CASE_REVEAL = setTimeout(showCaseNow, 4000);
-    }
+  function caseHeadingMatches(text, title) {
+    var value = String(text || "").trim();
+    var next = String(title || "").trim();
+    return !!next && (value === next || value.indexOf(next) === 0);
+  }
+
+  function revealCase() {
+    showCaseNow();
   }
 
   function apply() {
@@ -1139,13 +1467,6 @@
       signature: "/signature-arslan.png",
     };
     if (window.__arslanScrub) window.__arslanScrub();
-    if (/^\/projects\/[^/]+\/?$/.test(location.pathname)) {
-      var parts = location.pathname.split("/").filter(Boolean);
-      var slug = decodeURIComponent(parts[1] || "");
-      var match = projects.filter(function (item) { return item.slug === slug; })[0];
-      var h1 = document.querySelector("#main h1");
-      if (match && h1 && h1.textContent.trim() !== match.title) document.documentElement.removeAttribute("data-arslan-case");
-    }
     try {
       settleLayout();
       if (projects.length && !settled(projects)) {
@@ -1156,14 +1477,16 @@
           hideSelected(!data.showHomeProjects);
           if (data.showHomeProjects) showFeatured(projects);
         }
-        updateCount(projects.length);
       }
+      if (projects.length) updateCount(projects.length);
       if (location.pathname === "/") certificates(data);
       applyPages();
       applyMedia();
       applyCursor();
       applyCase();
       applyFilters();
+      fitServiceTitles();
+      unclipInset();
     } finally {
       applying = false;
     }
@@ -1238,6 +1561,19 @@
   function start() {
     bindFilters();
     watchImages();
+    if (!window.__ARSLAN_FIT_RESIZE) {
+      window.__ARSLAN_FIT_RESIZE = true;
+      var fitFrame = 0;
+      window.addEventListener("resize", function () {
+        if (fitFrame) cancelAnimationFrame(fitFrame);
+        fitFrame = requestAnimationFrame(function () {
+          fitFrame = 0;
+          fitServiceTitles();
+          unclipInset();
+          placeCertificates();
+        });
+      });
+    }
     contentRequest()
       .then(function (json) {
         data = json;

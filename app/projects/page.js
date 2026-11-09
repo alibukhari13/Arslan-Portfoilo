@@ -1,7 +1,3 @@
-import Page from "@/components/pages/projects/Page";
-
-export const metadata = { title: "Projects" };
-
-export default function ProjectsPage() {
-  return <Page />;
+export default function Page() {
+  return null;
 }
