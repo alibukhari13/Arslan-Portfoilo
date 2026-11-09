@@ -107,7 +107,6 @@ const copyLabels = {
   principlesTitle: "Project notes heading",
   principlesNote: "Project notes count",
   certificatesLead: "Certificates heading",
-  certificatesRest: "Certificates heading, muted part",
   newsletterTitle: "Newsletter heading",
   footerPages: "Footer pages label",
   footerResources: "Footer resources label",

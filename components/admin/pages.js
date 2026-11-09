@@ -215,8 +215,8 @@ export const adminPages = [
         id: "home-certificates",
         label: "Certificates",
         canHide: true,
-        updates: "Home page, in the place of Success stories. The heading is Certificates & credentials. Add, edit, delete, or reorder a certificate. The image and the open link are URLs.",
-        copyKeys: ["certificatesLead", "certificatesRest"],
+        updates: "Home page, in the place of Success stories. The heading is Certificates. Add, edit, delete, or reorder a certificate. The image and the open link are URLs.",
+        copyKeys: ["certificatesLead"],
         certs: true,
       },
       {

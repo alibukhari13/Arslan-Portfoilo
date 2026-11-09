@@ -666,7 +666,7 @@ export const copy = {
   principlesTitle: "Work shaped for products that need to feel clear",
   principlesNote: "14 selected studies",
   certificatesLead: "Certificates",
-  certificatesRest: "& credentials",
+  certificatesRest: "",
   newsletterTitle: "Join the\nnewsletter",
   footerPages: "Pages",
   footerResources: "Resources",

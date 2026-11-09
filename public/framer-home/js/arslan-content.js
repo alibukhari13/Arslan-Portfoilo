@@ -152,7 +152,7 @@
       if (current) current.remove();
       return;
     }
-    var signature = "v3|" + (info.certificatesLead || "") + "|" + (info.certificatesRest || "") + "|" + info.certificates.map(function (item) { return item.image + item.title + item.issuer; }).join("|");
+    var signature = "v4|" + (info.certificatesLead || "") + "|" + info.certificates.map(function (item) { return item.image + item.title + item.issuer; }).join("|");
     var inPlace = !stories || (current && current.nextElementSibling === stories);
     if (current && current.getAttribute("data-signature") === signature && inPlace) {
       var existingGrid = current.querySelector(".certs");
@@ -160,7 +160,7 @@
       return;
     }
     if (current) current.remove();
-    var css = "#arslan-certificates{box-sizing:border-box;display:flex;flex-direction:column;align-items:center;width:100%;padding:160px 36px 0;background:#fff;color:#0c0c0c}#arslan-certificates .wrap{width:100%;max-width:1368px}#arslan-certificates h2{margin:0;max-width:16em;font-family:Inter,sans-serif;font-weight:600;font-size:46px;line-height:1.1;letter-spacing:-.07em}#arslan-certificates h2 span{display:block;color:rgba(11,11,12,.45)}#arslan-certificates .certs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;width:100%;margin-top:48px}#arslan-certificates a,#arslan-certificates article{display:flex;flex-direction:column;color:inherit;text-decoration:none}#arslan-certificates .frame{display:flex;align-items:center;justify-content:center;background:#f3f3f3;aspect-ratio:16/11;padding:28px}#arslan-certificates img{display:block;width:100%;height:100%;object-fit:contain}#arslan-certificates h3{margin:18px 0 0;font-family:Inter,sans-serif;font-size:22px;font-weight:600;line-height:1.3;letter-spacing:-.04em}#arslan-certificates .issuer{margin:8px 0 0;font-family:Inter,sans-serif;font-size:16px;font-weight:500;line-height:1.4;letter-spacing:-.04em;color:rgba(12,12,12,.6)}#arslan-certificates .pill{align-self:flex-start;margin-top:16px;border:1px solid rgba(11,11,12,.16);border-radius:50px;padding:7px 14px;font-family:Inter,sans-serif;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}@media(max-width:1199px){#arslan-certificates{padding:130px 32px 0}#arslan-certificates h2{font-size:40px}}@media(max-width:809px){#arslan-certificates{padding:60px 16px 0}#arslan-certificates h2{font-size:28px}#arslan-certificates .certs{grid-template-columns:1fr}}";
+    var css = "#arslan-certificates{box-sizing:border-box;display:flex;flex-direction:column;align-items:center;width:100%;padding:160px 36px 0;background:#fff;color:#0c0c0c}#arslan-certificates .wrap{width:100%;max-width:1368px}#arslan-certificates h2{margin:0;font-family:Inter,sans-serif;font-weight:600;font-size:112px;line-height:.96;letter-spacing:-.07em}#arslan-certificates .certs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;width:100%;margin-top:48px}#arslan-certificates a,#arslan-certificates article{display:flex;flex-direction:column;color:inherit;text-decoration:none}#arslan-certificates .frame{display:flex;align-items:center;justify-content:center;background:#f3f3f3;aspect-ratio:16/11;padding:28px}#arslan-certificates img{display:block;width:100%;height:100%;object-fit:contain}#arslan-certificates h3{margin:18px 0 0;font-family:Inter,sans-serif;font-size:22px;font-weight:600;line-height:1.3;letter-spacing:-.04em}#arslan-certificates .issuer{margin:8px 0 0;font-family:Inter,sans-serif;font-size:16px;font-weight:500;line-height:1.4;letter-spacing:-.04em;color:rgba(12,12,12,.6)}#arslan-certificates .pill{align-self:flex-start;margin-top:16px;border:1px solid rgba(11,11,12,.16);border-radius:50px;padding:7px 14px;font-family:Inter,sans-serif;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}@media(max-width:1199px){#arslan-certificates{padding:130px 32px 0}#arslan-certificates h2{font-size:80px}}@media(max-width:809px){#arslan-certificates{padding:60px 16px 0}#arslan-certificates h2{font-size:42px}#arslan-certificates .certs{grid-template-columns:1fr}}";
     var style = document.getElementById("arslan-cert-style");
     if (!style) {
       style = document.createElement("style");
@@ -176,9 +176,6 @@
     wrap.className = "wrap";
     var title = document.createElement("h2");
     title.appendChild(document.createTextNode(info.certificatesLead || "Certificates"));
-    var muted = document.createElement("span");
-    muted.textContent = info.certificatesRest || "& credentials";
-    title.appendChild(muted);
     wrap.appendChild(title);
 
     var grid = document.createElement("div");

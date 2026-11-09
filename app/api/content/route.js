@@ -62,7 +62,7 @@ export async function GET() {
       projects,
       certificates,
       certificatesLead: text(site.copy?.certificatesLead, 80) || "Certificates",
-      certificatesRest: text(site.copy?.certificatesRest, 80) || "& credentials",
+      certificatesRest: "",
       showHomeProjects: isShown(site.hidden, "home-projects"),
       showProjects: isShown(site.hidden, "projects-all"),
       showCertificates: isShown(site.hidden, "home-certificates"),

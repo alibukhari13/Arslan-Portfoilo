@@ -13,8 +13,6 @@ export default async function Certificates() {
         <ScrollWords
           as="h2"
           text={copy.certificatesLead}
-          muted={copy.certificatesRest}
-          breakBeforeMuted
           className="display-title max-w-[608px]"
         />
       </Reveal>
