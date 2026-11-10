@@ -1590,6 +1590,7 @@
   }
 
   function apply() {
+    if (window.__ARSLAN_MARK_NAV) window.__ARSLAN_MARK_NAV();
     if (!data || applying) return;
     var projects = data.projects || [];
     applying = true;
@@ -1700,9 +1701,19 @@
     if (!document.getElementById("arslan-nav-hide")) {
       var style = document.createElement("style");
       style.id = "arslan-nav-hide";
-      style.textContent = ".framer-fyydzk-container{transition:transform .35s cubic-bezier(.22,.61,.36,1)}html.arslan-nav-hidden .framer-fyydzk-container{transform:translateY(-120%)!important;pointer-events:none!important}";
+      style.textContent = "[data-arslan-nav]{position:fixed!important;top:0!important;left:0!important;right:0!important;z-index:9;transition:transform .35s cubic-bezier(.22,.61,.36,1)}html.arslan-nav-hidden [data-arslan-nav]{transform:translateY(-120%)!important;pointer-events:none!important}";
       document.head.appendChild(style);
     }
+    function markNavBars() {
+      var headers = document.querySelectorAll("header.framer-Wc1WU");
+      for (var i = 0; i < headers.length; i += 1) {
+        var bar = headers[i].parentElement;
+        if (bar && bar.getAttribute("data-arslan-nav") !== "1") bar.setAttribute("data-arslan-nav", "1");
+      }
+    }
+    markNavBars();
+    window.__ARSLAN_MARK_NAV = markNavBars;
+    new MutationObserver(function () { markNavBars(); }).observe(document.documentElement, { childList: true, subtree: true });
     var last = window.scrollY || 0;
     var hidden = false;
     var frame = 0;
@@ -1718,6 +1729,7 @@
     }
     function applyScroll() {
       frame = 0;
+      markNavBars();
       var y = window.scrollY || document.documentElement.scrollTop || 0;
       var delta = y - last;
       last = y;

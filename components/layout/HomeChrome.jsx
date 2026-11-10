@@ -11,7 +11,8 @@ const extra = `
 .framer-fyydzk-container {
   transition: transform .35s cubic-bezier(.22,.61,.36,1);
 }
-:host-context(html.arslan-nav-hidden) .framer-fyydzk-container {
+:host-context(html.arslan-nav-hidden) .framer-fyydzk-container,
+:host-context(html.arslan-nav-hidden) [data-arslan-nav] {
   transform: translateY(-120%) !important;
   pointer-events: none !important;
 }
@@ -91,6 +92,9 @@ export default function HomeChrome({ showNav, showFooter, children }) {
       wrap.style.display = "contents";
       wrap.innerHTML = `${header}<slot></slot>${footer}`;
       shadow.appendChild(wrap);
+      wrap.querySelectorAll("header.framer-Wc1WU").forEach((header) => {
+        header.parentElement?.setAttribute("data-arslan-nav", "1");
+      });
       shadow.addEventListener("click", (event) => {
         const button = event.target.closest?.(".framer-1xpg40s");
         if (!button) return;
