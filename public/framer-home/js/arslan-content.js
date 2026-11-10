@@ -442,6 +442,49 @@
     paint(from, to, row);
   }
 
+  function seamDot(node) {
+    return !!(node && node.getAttribute && node.getAttribute("data-arslan-ticker-dot") === "1");
+  }
+
+  function separateTickerSeam(track) {
+    if (!track || track.offsetWidth < 40) return;
+    var labels = Array.prototype.filter.call(track.children, function (child) {
+      if (seamDot(child)) return false;
+      return leaves(child).some(function (el) { return (el.textContent || "").trim(); });
+    });
+    if (labels.length < 2) return;
+    var gap = Math.round(labels[1].getBoundingClientRect().left - labels[0].getBoundingClientRect().right);
+    if (gap < 16) return;
+    track.style.boxSizing = "content-box";
+    var pad = gap + "px";
+    if (track.style.paddingRight !== pad) track.style.paddingRight = pad;
+    var dot = track.querySelector('[data-arslan-ticker-dot="1"]');
+    if (!dot) {
+      var sample = null;
+      for (var i = 0; i < track.children.length; i += 1) {
+        if (track.children[i].getAttribute("data-framer-name") === "Ellipse") {
+          sample = track.children[i];
+          break;
+        }
+      }
+      if (!sample) return;
+      dot = sample.cloneNode(true);
+      dot.setAttribute("data-arslan-ticker-dot", "1");
+      track.appendChild(dot);
+    } else if (track.lastElementChild !== dot) {
+      track.appendChild(dot);
+    }
+    var content = track.clientWidth - gap;
+    var left = Math.round(content + (gap - dot.offsetWidth) / 2);
+    dot.style.position = "absolute";
+    dot.style.top = "50%";
+    dot.style.right = "auto";
+    dot.style.margin = "0";
+    dot.style.transform = "translateY(-50%)";
+    var leftPx = left + "px";
+    if (dot.style.left !== leftPx) dot.style.left = leftPx;
+  }
+
   function syncTicker(origins, items) {
     var words = (items || []).map(function (item) { return String(item || "").trim(); }).filter(Boolean);
     var known = {};
@@ -454,12 +497,14 @@
     });
     tracks.forEach(function (track) {
       var rows = Array.prototype.filter.call(track.children, function (child) {
+        if (seamDot(child)) return false;
         return leaves(child).some(function (el) { return known[el.textContent.trim()]; });
       });
       if (!rows.length || rows.length > Math.max(words.length * 2, 8)) return;
       while (rows.length < words.length) {
         var last = rows[rows.length - 1];
         var dot = last.previousElementSibling;
+        while (seamDot(dot)) dot = dot.previousElementSibling;
         if (dot && !leaves(dot).some(function (el) { return known[el.textContent.trim()]; })) track.appendChild(dot.cloneNode(true));
         var clone = last.cloneNode(true);
         track.appendChild(clone);
@@ -468,8 +513,9 @@
       while (rows.length > words.length) {
         var extra = rows.pop();
         var sep = extra.previousElementSibling;
+        while (seamDot(sep)) sep = sep.previousElementSibling;
         extra.remove();
-        if (sep && sep.parentNode === track && !leaves(sep).some(function (el) { return known[el.textContent.trim()]; })) sep.remove();
+        if (sep && sep.parentNode === track && !seamDot(sep) && !leaves(sep).some(function (el) { return known[el.textContent.trim()]; })) sep.remove();
       }
       rows.forEach(function (row, index) {
         var next = words[index];
@@ -478,6 +524,7 @@
           if (known[current] && current !== next) el.textContent = next;
         });
       });
+      separateTickerSeam(track);
     });
   }
 
