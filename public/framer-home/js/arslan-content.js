@@ -1694,7 +1694,49 @@
     return window.__ARSLAN_CONTENT;
   }
 
+  function bindNavHide() {
+    if (window.__ARSLAN_NAV) return;
+    window.__ARSLAN_NAV = true;
+    if (!document.getElementById("arslan-nav-hide")) {
+      var style = document.createElement("style");
+      style.id = "arslan-nav-hide";
+      style.textContent = ".framer-fyydzk-container{transition:transform .35s cubic-bezier(.22,.61,.36,1)}html.arslan-nav-hidden .framer-fyydzk-container{transform:translateY(-120%)!important;pointer-events:none!important}";
+      document.head.appendChild(style);
+    }
+    var last = window.scrollY || 0;
+    var hidden = false;
+    var frame = 0;
+    function menuOpen() {
+      var headers = document.querySelectorAll("header");
+      for (var i = 0; i < headers.length; i += 1) {
+        var header = headers[i];
+        if (header.classList.contains("menu-open")) return true;
+        var box = header.getBoundingClientRect();
+        if (box.width > 0 && box.height > 160 && box.top < 80) return true;
+      }
+      return false;
+    }
+    function applyScroll() {
+      frame = 0;
+      var y = window.scrollY || document.documentElement.scrollTop || 0;
+      var delta = y - last;
+      last = y;
+      var next = hidden;
+      if (y < 24 || menuOpen()) next = false;
+      else if (delta > 8) next = true;
+      else if (delta < -8) next = false;
+      if (next === hidden) return;
+      hidden = next;
+      document.documentElement.classList.toggle("arslan-nav-hidden", hidden);
+    }
+    window.addEventListener("scroll", function () {
+      if (frame) return;
+      frame = requestAnimationFrame(applyScroll);
+    }, { passive: true });
+  }
+
   function start() {
+    bindNavHide();
     bindFilters();
     watchImages();
     if (!window.__ARSLAN_FIT_RESIZE) {
