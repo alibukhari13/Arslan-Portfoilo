@@ -78,7 +78,11 @@ function ListBlock({ list, page, setList }) {
         </article>
       ))}
       {allowAdd ? (
-        <button type="button" className="flex h-12 w-full items-center justify-center border border-dashed border-white/20 text-[12px] font-medium uppercase tracking-[0.14em] text-lime hover:border-lime" onClick={() => setList(list.key, [...rows, { ...list.blank }])}>
+        <button
+          type="button"
+          className="flex h-12 w-full items-center justify-center border border-dashed border-white/20 text-[12px] font-medium uppercase tracking-[0.14em] text-lime hover:border-lime"
+          onClick={() => setList(list.key, [...rows, { ...list.blank, ...(list.lockId ? { id: `filter-${Date.now()}` } : {}) }])}
+        >
           {list.addLabel}
         </button>
       ) : null}
@@ -121,7 +125,18 @@ export function LiveEditor({ section, pages, onChange }) {
             key={`${ownerKey}-${list.key}`}
             list={list}
             page={owner}
-            setList={(key, rows) => onChange({ ...pages, [ownerKey]: { ...owner, [key]: rows } })}
+            setList={(key, rows) => {
+              const nextOwner = { ...owner, [key]: rows };
+              if (key === "filters") {
+                rows.forEach((row) => {
+                  const id = String(row.id || "").trim().toLowerCase();
+                  if (id === "dashboard") nextOwner.filterDashboard = row.label || "Dashboard";
+                  if (id === "app") nextOwner.filterApp = row.label || "App";
+                  if (id === "website") nextOwner.filterWebsite = row.label || "Website";
+                });
+              }
+              onChange({ ...pages, [ownerKey]: nextOwner });
+            }}
           />
         );
       })}

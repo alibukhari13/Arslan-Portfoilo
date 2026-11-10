@@ -137,6 +137,14 @@ const primaryBtn = "inline-flex h-11 items-center justify-center bg-lime px-5 te
 const quietBtn = "inline-flex h-8 items-center justify-center border border-white/12 px-2.5 text-[11px] font-medium uppercase tracking-[0.12em] text-white/70 transition-colors hover:border-white/35 hover:text-white disabled:cursor-not-allowed disabled:opacity-30";
 const iconBtn = "grid h-8 w-8 place-items-center border border-white/12 text-sm text-white/70 transition-colors hover:border-white/35 hover:text-white disabled:cursor-not-allowed disabled:opacity-30";
 
+function selectOptions(field) {
+  return (field.options || []).map((option) => (
+    option && typeof option === "object"
+      ? { value: String(option.value ?? ""), label: String(option.label || option.value || "") }
+      : { value: String(option), label: String(option) }
+  )).filter((option) => option.value);
+}
+
 function blank(spec) {
   const row = { id: null, sort: 0 };
   spec.fields.forEach((field) => {
@@ -144,7 +152,7 @@ function blank(spec) {
     else if (field.type === "sections") row[field.key] = [{ heading: "", text: "" }];
     else if (field.type === "bool") row[field.key] = false;
     else if (field.type === "number") row[field.key] = 0;
-    else if (field.type === "select") row[field.key] = field.options[0];
+    else if (field.type === "select") row[field.key] = selectOptions(field)[0]?.value || "";
     else row[field.key] = "";
   });
   return row;
@@ -250,11 +258,14 @@ function FieldInput({ field, value, onChange }) {
     return <input type="number" className={inputClass} value={value ?? 0} onChange={(event) => onChange(Number(event.target.value))} />;
   }
   if (field.type === "select") {
+    const options = selectOptions(field);
+    const current = String(value || "");
+    const shown = current && !options.some((option) => option.value === current) ? [...options, { value: current, label: current }] : options;
     return (
-      <select className={inputClass} value={value || field.options[0]} onChange={(event) => onChange(event.target.value)}>
-        {field.options.map((option) => (
-          <option key={option} value={option}>
-            {option}
+      <select className={inputClass} value={current || shown[0]?.value || ""} onChange={(event) => onChange(event.target.value)}>
+        {shown.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
           </option>
         ))}
       </select>
@@ -418,14 +429,31 @@ function withLivePages(saved) {
   return next;
 }
 
+function projectFilterOptions(pages) {
+  const saved = pages?.projects?.filters;
+  const source = Array.isArray(saved) && saved.length ? saved : [
+    { id: "Dashboard", label: "Dashboard" },
+    { id: "App", label: "App" },
+    { id: "Website", label: "Website" },
+  ];
+  return source
+    .map((item) => ({
+      value: String(item.id || item.label || "").trim(),
+      label: String(item.label || item.id || "").trim(),
+    }))
+    .filter((item) => item.value && item.label);
+}
+
 function listKey(list) {
   return `${list.id}:${list.group || "all"}`;
 }
 
-function RecordList({ list, rows, query, onQuery, adding, onAdding, drafts, setDrafts, busy, onMove, onSave, onDelete }) {
+function RecordList({ list, rows, query, onQuery, adding, onAdding, drafts, setDrafts, busy, onMove, onSave, onDelete, filterOptions = [] }) {
   const spec = listSpecs[list.id];
   const key = listKey(list);
-  const fields = list.group ? spec.fields.filter((field) => field.key !== "group_name") : spec.fields;
+  const fields = (list.group ? spec.fields.filter((field) => field.key !== "group_name") : spec.fields).map((field) => (
+    field.key === "filterGroup" && filterOptions.length ? { ...field, options: filterOptions } : field
+  ));
   const visibleSpec = { ...spec, fields };
   const needle = query.trim().toLowerCase();
   const shown = needle ? rows.filter((item) => String(item[spec.titleKey] || "").toLowerCase().includes(needle)) : rows;
@@ -1020,6 +1048,7 @@ export default function AdminPanel({ initialAuthed, initialData = null, initialE
                     onMove={moveRows}
                     onSave={saveRow}
                     onDelete={deleteRow}
+                    filterOptions={projectFilterOptions(copy.pages)}
                   />
                 );
               })}

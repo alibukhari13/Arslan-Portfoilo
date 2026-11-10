@@ -34,7 +34,7 @@ export default function HomeChrome({ showNav, showFooter, children }) {
     Promise.all([
       fetch("/chrome/home.css").then((response) => response.text()),
       showNav ? fetch("/chrome/header.html").then((response) => response.text()) : Promise.resolve(""),
-      showFooter ? fetch("/chrome/footer.html").then((response) => response.text()) : Promise.resolve(""),
+      showFooter ? fetch("/chrome/footer.html?v=2").then((response) => response.text()) : Promise.resolve(""),
     ]).then(([css, header, footer]) => {
       if (cancelled || !host.current || host.current.shadowRoot) return;
       const shadow = host.current.attachShadow({ mode: "open" });

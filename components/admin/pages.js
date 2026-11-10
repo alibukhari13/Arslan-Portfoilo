@@ -378,22 +378,39 @@ export const adminPages = [
       {
         id: "projects-intro",
         label: "Page heading",
-        updates: "Website → Projects page. The heading, the sentence under it, and the filter words All, Dashboard, App, and Website. The same words also sit on the cards that use them.",
+        updates: "Website → Projects page. The large heading and the sentence under it. The All filter is edited in Filters.",
         livePage: "projects",
         fields: [
           { key: "title", label: "Heading", hint: "Projects page, the large heading." },
           { key: "text", label: "Sentence", long: true, hint: "Projects page, the sentence under the heading." },
-          { key: "filterAll", label: "Filter: All", hint: "The All filter on the Projects page." },
-          { key: "filterDashboard", label: "Filter: Dashboard", hint: "The Dashboard filter, and the Dashboard label on a card." },
-          { key: "filterApp", label: "Filter: App", hint: "The App filter, and the App label on a card." },
-          { key: "filterWebsite", label: "Filter: Website", hint: "The Website filter, and the Website label on a card." },
         ],
+      },
+      {
+        id: "projects-filters",
+        label: "Filters",
+        updates: "Projects page filters. All stays first and shows every project. Add a filter, rename it, reorder it, or delete it. Each project's Filter field chooses one of these. The same name is the small label on the card. Save, then reload the Projects page to see it.",
+        livePage: "projects",
+        fields: [
+          { key: "filterAll", label: "All filter", hint: "Always the first filter. It shows every project." },
+        ],
+        list: {
+          key: "filters",
+          titleKey: "label",
+          empty: "New filter",
+          addLabel: "Add filter",
+          lockId: true,
+          blank: { id: "", label: "" },
+          note: "Renaming a filter keeps the projects already assigned to it. Deleting a filter leaves those projects under All until you pick a new filter.",
+          fields: [
+            { key: "label", label: "Filter name", hint: "The word on the filter and on the project card." },
+          ],
+        },
       },
       {
         id: "projects-all",
         label: "All projects",
         canHide: true,
-        updates: "Every project, in this order. The first 5 are the home page cards. The Filter on each project is the small label on its card and decides whether it appears under App, Dashboard, or Website. Opening a project shows its page: the title, the line under it, Date, Tools, Product type, Project duration, the photos, and the paragraphs for context, challenge, problem, solution, design approach, key features, and conclusion. Use the arrows to reorder, or delete a project.",
+        updates: "Every project, in this order. The first 5 are the home page cards. The Filter on each project is the small label on its card and decides which filter shows it. Opening a project shows its page: the title, the line under it, Date, Tools, Product type, Project duration, the photos, and the paragraphs for context, challenge, problem, solution, design approach, key features, and conclusion. Use the arrows to reorder, or delete a project.",
         lists: [{ id: "projects", title: "Projects" }],
       },
       {

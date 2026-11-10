@@ -2,7 +2,7 @@
 <!-- Made in Framer · framer.com ✨ -->
 <!-- Published Sep 4, 2026, 5:13 PM UTC -->
 <html lang="en" data-redirect-timezone="1">
-<head><!--arslan-fast--><link rel="preconnect" href="https://framerusercontent.com" crossorigin><link rel="dns-prefetch" href="https://framerusercontent.com"><script>window.__ARSLAN_CONTENT=fetch("/api/content",{headers:{accept:"application/json"}}).then(function(r){return r.ok?r.json():Promise.reject()});</script><script src="/framer-home/js/arslan-guard.js?v=24"></script>
+<head><!--arslan-fast--><link rel="preconnect" href="https://framerusercontent.com" crossorigin><link rel="dns-prefetch" href="https://framerusercontent.com"><script>window.__ARSLAN_CONTENT=fetch("/api/content",{cache:"no-store",headers:{accept:"application/json"}}).then(function(r){return r.ok?r.json():Promise.reject()});</script><script src="/framer-home/js/arslan-guard.js?v=24"></script>
 <script>
 window.addEventListener("click",function(e){
   var a=e.target&&e.target.closest&&e.target.closest("a");
@@ -38,14 +38,10 @@ document.addEventListener("submit",function(e){
   var email=form.querySelector('input[name="E-mail"]');
   var message=form.querySelector('textarea[name="Message"]');
   if(!name||!email||!message)return;
-  if(name.value.trim().length<2||message.value.trim().length<2)return;
   e.preventDefault();
   e.stopPropagation();
-  var source="Home";
-  if(location.pathname.indexOf("contact")!==-1)source="Contact page";
-  else if(location.pathname.indexOf("about")!==-1)source="About";
-  else if(location.pathname.indexOf("projects")!==-1)source="Projects";
-  fetch("/api/contact",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:name.value.trim(),email:email.value.trim(),message:message.value.trim(),source:source})}).catch(function(){});
+  if(typeof e.stopImmediatePropagation==="function")e.stopImmediatePropagation();
+  if(window.__ARSLAN_SEND_FORM)window.__ARSLAN_SEND_FORM(form);
 },true);
 </script>
 	<meta charset="utf-8">
@@ -435,6 +431,6 @@ document.addEventListener("submit",function(e){
 	<!-- Start of bodyEnd -->
     
     <!-- End of bodyEnd -->
-<script src="/framer-home/js/arslan-content.js?v=40" defer></script>
+<script src="/framer-home/js/arslan-content.js?v=43" defer></script>
 </body>
 </html>

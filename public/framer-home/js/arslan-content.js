@@ -1354,7 +1354,12 @@
       "article [data-framer-name='Content'] [data-framer-name='Quote'], article [data-framer-name='Content'] [data-framer-name='Images'], article [data-framer-name='Content'] [data-framer-name='Images'] > div { opacity: 1 !important; transform: none !important; }",
       "article [data-framer-background-image-wrapper='true'] { display: block !important; }",
       "article [data-framer-background-image-wrapper='true'] img { width: 100%; height: 100%; object-fit: cover; }",
-      ".framer-0a8tV > [data-framer-name='Items'] ~ [data-framer-name='Items'] { display: none !important; }"
+      "[data-arslan-sent-note]{display:flex;flex-direction:column;justify-content:center;gap:10px;min-height:140px;padding:12px 0;color:inherit}",
+      "[data-arslan-sent-title]{margin:0;font-family:Inter,sans-serif;font-weight:600;font-size:clamp(22px,3vw,32px);line-height:1.15;letter-spacing:-0.04em}",
+      "[data-arslan-sent-body]{margin:0;max-width:36em;font-family:Inter,sans-serif;font-size:16px;line-height:1.5;opacity:.75}",
+      "[data-arslan-sent-error]{margin:12px 0 0;color:#F9452D;font-family:Inter,sans-serif;font-size:14px;line-height:1.4}",
+      ".framer-0a8tV > [data-framer-name='Items'] ~ [data-framer-name='Items'] { display: none !important; }",
+      ".framer-fvliW[data-framer-name='All'], .framer-fvliW[data-framer-name='All'] > div { height: auto !important; flex-wrap: wrap !important; overflow: visible !important; row-gap: 8px; }"
     ].join("\n");
     document.head.appendChild(style);
     if (!document.querySelector("meta[name='theme-color']")) {
@@ -1365,33 +1370,116 @@
     }
   }
 
-  function pillLabel(project) {
+  function filterDefs() {
     var pages = (data && data.pages && data.pages.projects) || {};
+    var saved = Array.isArray(pages.filters) ? pages.filters : [];
+    var source = saved.length ? saved : [
+      { id: "Dashboard", label: pages.filterDashboard || "Dashboard" },
+      { id: "App", label: pages.filterApp || "App" },
+      { id: "Website", label: pages.filterWebsite || "Website" }
+    ];
+    return source.map(function (item) {
+      return {
+        id: String(item && (item.id || item.label) || "").trim(),
+        label: String(item && (item.label || item.id) || "").trim()
+      };
+    }).filter(function (item) { return item.id && item.label; });
+  }
+
+  function pillLabel(project) {
     var key = groupKey(project && (project.filterGroup || project.category));
-    if (key === "dashboard") return pages.filterDashboard || "Dashboard";
-    if (key === "app") return pages.filterApp || "App";
-    return pages.filterWebsite || "Website";
+    var hit = filterDefs().filter(function (item) { return item.id === key; })[0];
+    return hit ? hit.label : key;
   }
 
   function groupKey(value) {
     var text = String(value || "").trim().toLowerCase();
-    if (text.indexOf("dashboard") !== -1) return "dashboard";
-    if (text === "app" || /\bapp\b/.test(text)) return "app";
-    return "website";
+    var filters = filterDefs();
+    var hit = null;
+    filters.forEach(function (item) {
+      if (hit) return;
+      if (String(item.id).trim().toLowerCase() === text || String(item.label).trim().toLowerCase() === text) hit = item;
+    });
+    if (hit) return hit.id;
+    if (text.indexOf("dashboard") !== -1) {
+      var dash = filters.filter(function (item) { return String(item.id).toLowerCase() === "dashboard"; })[0];
+      if (dash) return dash.id;
+    }
+    if (text === "app" || /\bapp\b/.test(text)) {
+      var app = filters.filter(function (item) { return String(item.id).toLowerCase() === "app"; })[0];
+      if (app) return app.id;
+    }
+    if (text.indexOf("web") !== -1) {
+      var web = filters.filter(function (item) { return String(item.id).toLowerCase() === "website"; })[0];
+      if (web) return web.id;
+    }
+    return filters[0] ? filters[0].id : text || "Website";
   }
 
   function filterMap() {
     var pages = (data && data.pages && data.pages.projects) || {};
     var map = {};
     map[String(pages.filterAll || "All").trim().toLowerCase()] = "all";
-    map[String(pages.filterDashboard || "Dashboard").trim().toLowerCase()] = "dashboard";
-    map[String(pages.filterApp || "App").trim().toLowerCase()] = "app";
-    map[String(pages.filterWebsite || "Website").trim().toLowerCase()] = "website";
+    filterDefs().forEach(function (item) {
+      map[item.label.trim().toLowerCase()] = item.id;
+    });
     return map;
+  }
+
+  function setPillText(node, label) {
+    if (!node) return;
+    Array.prototype.forEach.call(node.querySelectorAll("p"), function (el) {
+      if (el.textContent !== label) el.textContent = label;
+    });
+  }
+
+  function syncFilterBars() {
+    if (location.pathname !== "/projects" || !data) return;
+    var pages = (data.pages && data.pages.projects) || {};
+    var allLabel = String(pages.filterAll || "All").trim() || "All";
+    var filters = filterDefs();
+    Array.prototype.forEach.call(document.querySelectorAll(".framer-fvliW[data-framer-name='All']"), function (bar) {
+      var track = bar.querySelector(".framer-qae8w8");
+      var host = track ? track.parentElement : bar;
+      var allLink = track ? track.querySelector("a") : null;
+      if (allLink) {
+        allLink.setAttribute("data-arslan-filter-id", "all");
+        setPillText(allLink, allLabel);
+      }
+      var originals = Array.prototype.filter.call(host.children, function (node) {
+        return node.tagName === "A" && node.getAttribute("data-arslan-filter-pill") !== "1";
+      });
+      var template = originals[0];
+      if (!template) return;
+      originals.forEach(function (node) { node.style.display = "none"; });
+      var clones = Array.prototype.filter.call(host.children, function (node) {
+        return node.getAttribute && node.getAttribute("data-arslan-filter-pill") === "1";
+      });
+      while (clones.length < filters.length) {
+        var clone = template.cloneNode(true);
+        clone.setAttribute("data-arslan-filter-pill", "1");
+        clone.removeAttribute("target");
+        clone.setAttribute("href", "/projects");
+        host.appendChild(clone);
+        clones.push(clone);
+      }
+      clones.forEach(function (node, index) {
+        var filter = filters[index];
+        if (!filter) {
+          node.style.display = "none";
+          return;
+        }
+        node.style.display = "";
+        node.setAttribute("data-arslan-filter-id", filter.id);
+        setPillText(node, filter.label);
+      });
+    });
   }
 
   function applyFilters() {
     if (location.pathname !== "/projects" || !data) return;
+    syncFilterBars();
+    window.__ARSLAN_FILTER_LABELS = filterMap();
     var active = window.__ARSLAN_FILTER || "all";
     var byHref = {};
     (data.projects || []).forEach(function (item) {
@@ -1402,7 +1490,7 @@
         var anchor = child.tagName === "A" ? child : (child.querySelector && (child.querySelector("a[href*='/projects/']") || child.querySelector("a")));
         if (!anchor || !anchor.querySelector || !anchor.querySelector("h3")) return;
         var project = byHref[anchor.getAttribute("href") || ""];
-        var show = active === "all" || (project && groupKey(project.filterGroup || project.category) === active);
+        var show = String(active).toLowerCase() === "all" || (project && String(groupKey(project.filterGroup || project.category)).toLowerCase() === String(active).toLowerCase());
         var next = show ? "" : "none";
         if (child.style.display !== next) child.style.display = next;
       });
@@ -1411,7 +1499,7 @@
     Array.prototype.forEach.call(document.querySelectorAll("[data-framer-name='All'] a"), function (link) {
       var key = map[(link.innerText || "").replace(/\s+/g, " ").trim().toLowerCase()];
       if (!key) return;
-      var on = key === active;
+      var on = String(key).toLowerCase() === String(active).toLowerCase();
       link.setAttribute("data-arslan-filter", on ? "on" : "off");
       if (on) link.setAttribute("aria-current", "true");
       else link.removeAttribute("aria-current");
@@ -1431,7 +1519,7 @@
       var link = event.target && event.target.closest ? event.target.closest("a") : null;
       if (!link || !link.closest("[data-framer-name='All']")) return;
       var label = (link.innerText || "").replace(/\s+/g, " ").trim().toLowerCase();
-      var key = data ? filterMap()[label] : { all: "all", dashboard: "dashboard", app: "app", website: "website" }[label];
+      var key = link.getAttribute("data-arslan-filter-id") || (data ? filterMap()[label] : { all: "all", dashboard: "dashboard", app: "app", website: "website" }[label]);
       if (!key) return;
       event.preventDefault();
       event.stopPropagation();
@@ -1487,6 +1575,7 @@
       applyFilters();
       fitServiceTitles();
       unclipInset();
+      keepSentForms();
     } finally {
       applying = false;
     }
@@ -1551,7 +1640,7 @@
 
   function contentRequest() {
     if (window.__ARSLAN_CONTENT && typeof window.__ARSLAN_CONTENT.then === "function") return window.__ARSLAN_CONTENT;
-    window.__ARSLAN_CONTENT = fetch("/api/content", { headers: { accept: "application/json" } }).then(function (response) {
+    window.__ARSLAN_CONTENT = fetch("/api/content", { cache: "no-store", headers: { accept: "application/json" } }).then(function (response) {
       if (!response.ok) throw new Error("content");
       return response.json();
     });
@@ -1592,6 +1681,122 @@
       })
       .catch(function () {});
   }
+
+  function formSource() {
+    var path = location.pathname;
+    if (path.indexOf("/contact") === 0) return "Contact page";
+    if (path.indexOf("/about") === 0) return "About";
+    if (/^\/projects\/[^/]+/.test(path)) return "Project";
+    if (path.indexOf("/projects") === 0) return "Projects";
+    if (path.indexOf("/services") === 0) return "Services";
+    if (path.indexOf("/pricing") === 0) return "Pricing";
+    return "Home";
+  }
+
+  function sentCopy() {
+    var copy = (data && (data.formSent || data.copy)) || {};
+    return {
+      title: copy.formSentTitle || "Your message is sent.",
+      body: copy.formSentBody || "Thank you for writing. Arslan will reply soon."
+    };
+  }
+
+  function showFormError(form, message) {
+    var node = form.querySelector("[data-arslan-sent-error]");
+    if (!node) {
+      node = document.createElement("p");
+      node.setAttribute("data-arslan-sent-error", "1");
+      var button = form.querySelector("button");
+      if (button && button.parentElement) button.parentElement.appendChild(node);
+      else form.appendChild(node);
+    }
+    node.textContent = message;
+    node.style.display = "block";
+  }
+
+  function setButtonLabel(form, label) {
+    var button = form.querySelector("button");
+    if (!button) return;
+    var text = button.querySelector("p") || button;
+    if (!button.getAttribute("data-arslan-label")) button.setAttribute("data-arslan-label", (text.textContent || "").replace(/\s+/g, " ").trim());
+    if ((text.textContent || "").replace(/\s+/g, " ").trim() !== label) text.textContent = label;
+    button.disabled = label === "Sending";
+  }
+
+  function showFormSent(form) {
+    if (!form) return;
+    form.setAttribute("data-arslan-sent", "1");
+    var copy = sentCopy();
+    var note = form.querySelector("[data-arslan-sent-note]");
+    if (!note) {
+      note = document.createElement("div");
+      note.setAttribute("data-arslan-sent-note", "1");
+      note.setAttribute("role", "status");
+      note.innerHTML = "<p data-arslan-sent-title></p><p data-arslan-sent-body></p>";
+      form.insertBefore(note, form.firstChild);
+    }
+    var title = note.querySelector("[data-arslan-sent-title]");
+    var body = note.querySelector("[data-arslan-sent-body]");
+    if (title && title.textContent !== copy.title) title.textContent = copy.title;
+    if (body && body.textContent !== copy.body) body.textContent = copy.body;
+    Array.prototype.forEach.call(form.children, function (child) {
+      if (child === note) return;
+      child.style.setProperty("display", "none", "important");
+    });
+    var error = form.querySelector("[data-arslan-sent-error]");
+    if (error) error.style.display = "none";
+  }
+
+  function keepSentForms() {
+    Array.prototype.forEach.call(document.querySelectorAll("form[data-arslan-sent='1']"), showFormSent);
+  }
+
+  function sendForm(form) {
+    if (!form || form.getAttribute("data-arslan-sending") === "1" || form.getAttribute("data-arslan-sent") === "1") return;
+    var name = form.querySelector('input[name="Name"]');
+    var email = form.querySelector('input[name="E-mail"]');
+    var message = form.querySelector('textarea[name="Message"]');
+    if (!name || !email || !message) return;
+    var nameValue = name.value.trim();
+    var emailValue = email.value.trim();
+    var messageValue = message.value.trim();
+    if (nameValue.length < 2 || messageValue.length < 2 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailValue)) {
+      showFormError(form, "Add your name, a real email, and a message.");
+      return;
+    }
+    form.setAttribute("data-arslan-sending", "1");
+    setButtonLabel(form, "Sending");
+    fetch("/api/contact", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: nameValue, email: emailValue, message: messageValue, source: formSource() })
+    }).then(function (response) {
+      return response.json().catch(function () { return {}; }).then(function (result) {
+        return { ok: response.ok && result.ok, error: result.error };
+      });
+    }).then(function (result) {
+      form.removeAttribute("data-arslan-sending");
+      if (!result.ok) {
+        var button = form.querySelector("button");
+        setButtonLabel(form, (button && button.getAttribute("data-arslan-label")) || "Get in touch");
+        var restore = form.querySelector("button");
+        if (restore) restore.disabled = false;
+        showFormError(form, result.error || "The message could not be sent. Please try again.");
+        return;
+      }
+      showFormSent(form);
+      var note = form.querySelector("[data-arslan-sent-note]");
+      if (note && note.scrollIntoView) note.scrollIntoView({ block: "center", behavior: "smooth" });
+    }).catch(function () {
+      form.removeAttribute("data-arslan-sending");
+      var button = form.querySelector("button");
+      setButtonLabel(form, (button && button.getAttribute("data-arslan-label")) || "Get in touch");
+      if (button) button.disabled = false;
+      showFormError(form, "The message could not be sent. Please try again.");
+    });
+  }
+
+  window.__ARSLAN_SEND_FORM = sendForm;
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
   else start();

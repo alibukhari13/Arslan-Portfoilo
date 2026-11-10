@@ -24,7 +24,7 @@ export async function GET() {
       title: text(item.title, 160),
       summary: text(item.summary, 600),
       category: text(item.category, 80),
-      filterGroup: text(item.filterGroup || projectGroup(item), 40),
+      filterGroup: text(item.filterGroup || projectGroup(item), 80),
       image: text(item.image, 500),
       href: `/projects/${text(item.slug, 80)}`,
       date: text(item.year, 80),
@@ -109,6 +109,6 @@ export async function GET() {
         href: text(item.href, 300),
       })),
     },
-    { headers: { "cache-control": "public, max-age=10, stale-while-revalidate=60" } },
+    { headers: { "cache-control": "no-store" } },
   );
 }

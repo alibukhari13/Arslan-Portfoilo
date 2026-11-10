@@ -183,6 +183,11 @@ export const liveDefaults = {
     filterDashboard: "Dashboard",
     filterApp: "App",
     filterWebsite: "Website",
+    filters: [
+      { id: "Dashboard", label: "Dashboard" },
+      { id: "App", label: "App" },
+      { id: "Website", label: "Website" },
+    ],
   },
   contact: {
     title: "Let's talk",
